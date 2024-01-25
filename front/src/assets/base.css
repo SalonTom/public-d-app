@@ -19,11 +19,14 @@
   --vt-c-text-light-2: rgba(60, 60, 60, 0.66);
   --vt-c-text-dark-1: var(--vt-c-white);
   --vt-c-text-dark-2: rgba(235, 235, 235, 0.64);
+
+  --figma-ratio : calc(max(0px, (100vh - 1024px)) * 0.03333);
+
 }
 
 /* semantic color variables for this project */
 :root {
-  --color-background: var(--vt-c-white);
+  --color-background: #141416;
   --color-background-soft: var(--vt-c-white-soft);
   --color-background-mute: var(--vt-c-white-mute);
 
@@ -55,16 +58,12 @@
 *::after {
   box-sizing: border-box;
   margin: 0;
-  font-weight: normal;
 }
 
 body {
   min-height: 100vh;
-  color: var(--color-text);
+  color: #FAFAFA;
   background: var(--color-background);
-  transition:
-    color 0.5s,
-    background-color 0.5s;
   line-height: 1.6;
   font-family:
     Inter,
@@ -79,8 +78,72 @@ body {
     'Droid Sans',
     'Helvetica Neue',
     sans-serif;
-  font-size: 15px;
+  font-size: 16px;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+
+  position: relative;
+  margin: 0 0;
+}
+
+.ellipse {
+  width: 1px;
+  height: 1px;
+
+  box-shadow: 0 4px 250px 700px rgba(255, 0, 245, 0.02);
+  border-radius: 50%;
+
+  position: absolute;
+
+  background-color: rgba(0, 0,0, 0.01);
+}
+
+.bottom-right {
+  bottom: 0;
+  right: 0;
+}
+
+.top-left {
+  top: 0;
+  left: 0;
+}
+
+/** Button */
+
+.btn {
+  padding: 12px 16px;
+  width: fit-content;
+  border-radius: 8px;
+  font-weight: bold;
+}
+
+.btn-primary {
+  background-color: #5C6BC0;
+  border: solid 1px #27262A;
+}
+
+/** Text */
+
+.headline {
+  font-size: calc(48px + var(--figma-ratio));
+  font-weight: bold;
+}
+
+.title {
+  font-size: calc(36px + var(--figma-ratio));
+  font-weight: bold;
+}
+
+.logo {
+  font-size: calc(24px + var(--figma-ratio));
+  font-weight: bold;
+}
+
+.emphasis {
+  font-size: calc(20px + var(--figma-ratio));
+}
+
+.short {
+  font-size: calc(12px + var(--figma-ratio));
 }
