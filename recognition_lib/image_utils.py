@@ -6,7 +6,6 @@ from deskew import determine_skew
 import numpy
 
 
-
 def scan_image_for_text(image):
     image = numpy.array(image) # converts the image to a compatible format
 

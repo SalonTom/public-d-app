@@ -1,5 +1,15 @@
+import pytesseract, re, json, nltk, itertools, spacy, difflib, math
 from datetime import datetime
 
+def string_tokenizer(text):
+    final_word_list = []
+    words_list = text.replace(" ", "\n").split("\n")
+
+    for element in words_list:
+        if len(element) >= 2:
+            final_word_list.append(element)
+
+    return final_word_list
 
 def is_date_before_today(date_str):
     date_obj = datetime.strptime(date_str, "%d %m %Y")
@@ -40,6 +50,7 @@ def old_card_number_pii(text,rules):
     card_number_addresses = re.findall(card_number_rules, text)
     card_number_addresses = list(set(filter(None, card_number_addresses)))
     return card_number_addresses
+
 
 def count_word_occurrences(text):
     # Initialiser un dictionnaire pour stocker les occurrences de chaque mot
