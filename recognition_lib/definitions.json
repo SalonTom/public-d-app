@@ -1,0 +1,22 @@
+{
+   "Date of Birth": {
+      "regex": "\\d{1,2}\\ \\d{1,2}\\ \\d{2,4}",
+      "region": null,
+      "keywords": ["NAISS", "DATE DE NAISS", "Date of Birth"]
+   },
+   "Old Date of Birth": {
+      "regex": "\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}",
+      "region": null,
+      "keywords": ["NAISS", "DATE DE NAISS", "Date of Birth"]
+   },
+   "Card Number France": {
+      "regex": "(?=.*[0-9])[A-Z0-9]{9}",
+      "region": null,
+      "keywords": null
+   },
+   "Old Card Number France": {
+      "regex": "[0-9]{12}",
+      "region": null,
+      "keywords": null
+   }
+}
