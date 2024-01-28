@@ -116,11 +116,47 @@ body {
   width: fit-content;
   border-radius: 8px;
   font-weight: bold;
+  cursor: pointer;
+}
+
+.btn-txt {
+  color : #5C6BC0;
+  position: relative;
+}
+
+.btn-txt::before {
+  position: absolute;
+  height: 2px;
+  width: 0%;
+  background-color: #9CA5D7;
+  content: ' ';
+  bottom: 0;
+  left: 0;
+  transition: width ease-in-out 0.15s;
+}
+
+.btn-txt:hover::before {
+  position: absolute;
+  width: 100%;
+  height: 2px;
+  background-color: #9CA5D7;
+  content: ' ';
+  bottom: 0;
+  left: 0;
+}
+
+.btn-txt:hover {
+  color : #9CA5D7;
 }
 
 .btn-primary {
   background-color: #5C6BC0;
   border: solid 1px #27262A;
+  transition: background-color ease-in-out 0.1s;
+}
+
+.btn-primary:hover {
+  background-color: #221522;
 }
 
 /** Text */
