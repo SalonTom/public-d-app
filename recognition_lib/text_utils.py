@@ -18,6 +18,13 @@ def is_date_before_today(date_str):
 
     return date_obj.date() < date_today
 
+def is_old_date_before_today(date_str):
+    date_obj = datetime.strptime(date_str, "%d.%m.%Y")
+
+    date_today = datetime.now().date()
+
+    return date_obj.date() < date_today
+
 def get_regexes():
     with open('definitions.json', "r", encoding='utf-8') as json_file:
         _rules = json.load(json_file)
@@ -43,7 +50,11 @@ def old_date_of_birth_pii(text,rules):
     date_of_birth_rules = rules["Old Date of Birth"]["regex"]
     date_of_birth_addresses = re.findall(date_of_birth_rules, text)
     date_of_birth_addresses = list(set(filter(None, date_of_birth_addresses)))
-    return date_of_birth_addresses
+    res = []
+    for date in date_of_birth_addresses:
+        if is_old_date_before_today(date):
+            res.append(date)
+    return res
 
 def old_card_number_pii(text,rules):
     card_number_rules = rules["Old Card Number France"]["regex"]

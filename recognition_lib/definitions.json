@@ -1,11 +1,11 @@
 {
    "Date of Birth": {
-      "regex": "\\d{1,2}\\ \\d{1,2}\\ \\d{2,4}",
+      "regex": "\\d{1,2}\\ \\d{1,2}\\ \\d{4}",
       "region": null,
       "keywords": ["NAISS", "DATE DE NAISS", "Date of Birth"]
    },
    "Old Date of Birth": {
-      "regex": "\\d{1,2}\\.\\d{1,2}\\.\\d{2,4}",
+      "regex": "\\d{1,2}\\.\\d{1,2}\\.\\d{4}",
       "region": null,
       "keywords": ["NAISS", "DATE DE NAISS", "Date of Birth"]
    },
