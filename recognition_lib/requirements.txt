@@ -9,7 +9,8 @@ pdf2image
 keras
 matplotlib
 pytesseract # along with: sudo apt install tesseract-ocr -y
-opencv-python
+# opencv-python
+opencv-python-headless
 pillow
 imutils
 xmltodict
@@ -18,3 +19,6 @@ bs4
 requests
 geotext
 spacy
+flask
+Flask-Cors
+text_utils
