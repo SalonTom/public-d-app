@@ -6,7 +6,7 @@ import "contracts/Project.sol";
 
 contract ProjectTokenFactory {
 
-    address constant public whitelistApiAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address constant public whitelistApiAddress = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
 
     enum WhitelistStatus {
         NotApplied,
@@ -52,13 +52,13 @@ contract ProjectTokenFactory {
         _;
     }
 
-    modifier onlyAPI() {
-        require(msg.sender == whitelistApiAddress, "Only API can call this function");
+    modifier onlyAPI(address userAddress) {
+        require(userAddress == whitelistApiAddress, "Only API can call this function");
         _;
     }
 
 
-    function whitelistUser(address userAddress, WhitelistStatus status) public onlyAPI() {
+    function whitelistUser(address userAddress, WhitelistStatus status) public onlyAPI(msg.sender) {
         whitelist[userAddress] = status;
     }
 }
