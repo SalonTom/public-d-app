@@ -8,12 +8,10 @@ import "contracts/Project.sol";
 contract ProjectToken is ERC20 {
     
     ProjectTokenFactory _parentFactory;
-    Project _parentProject;
 
-    constructor(string memory _title, string memory _symbol, uint256 _initialSupply, ProjectTokenFactory parentFactory, Project parentProject) ERC20(_title, _symbol) {
+    constructor(string memory _name, string memory _symbol, uint256 _initialSupply, ProjectTokenFactory parentFactory) ERC20(_name, _symbol) {
         _mint(msg.sender, _initialSupply);    
         _parentFactory = parentFactory;
-        _parentProject = parentProject;
     }
 
     modifier userWhitelisted(address userAddress){

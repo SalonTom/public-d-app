@@ -2,10 +2,11 @@
 pragma solidity ^0.8.20;
 
 import "contracts/ProjectToken.sol";
+import "contracts/Project.sol";
 
 contract ProjectTokenFactory {
 
-    address constant public whitelistApiAddress = 0xE0f5206BBD039e7b0592d8918820024e2a7437b9;
+    address constant public whitelistApiAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
 
     enum WhitelistStatus {
         NotApplied,
@@ -15,13 +16,23 @@ contract ProjectTokenFactory {
 
     mapping(address => WhitelistStatus) public whitelist;
 
-    address[] public deployedTokens;
+    address[] internal deployedTokens;
 
-    function createToken(string memory _title, string memory _symbol, uint256 _initialSupply) public userWhitelisted(msg.sender) returns (address){
-        ProjectToken newToken = new ProjectToken(_title, _symbol, _initialSupply, this);
-        address newTokenAddress = address(newToken);
-        deployedTokens.push(newTokenAddress);
-        return newTokenAddress;
+    struct ProjectAndToken{
+        Project project;
+        ProjectToken token;
+    }
+
+    ProjectAndToken[] internal projectsAndTokens;
+
+    function createProject(string memory _title, string memory _description, string memory _symbol, uint256 _initialSupply) public userWhitelisted(msg.sender) returns (ProjectAndToken memory){
+        Project project = new Project(msg.sender, _title, _description);
+        ProjectToken token = new ProjectToken(_title, _symbol, _initialSupply, this);
+        address tokenAddress = address(token);
+        deployedTokens.push(tokenAddress);
+        ProjectAndToken memory p_t = ProjectAndToken(project, token);
+        projectsAndTokens.push(p_t);
+        return p_t;
     }
 
     function getDeployedTokens() public view returns (address[] memory) {
@@ -30,6 +41,10 @@ contract ProjectTokenFactory {
 
     function isWhitelisted(address userAddress) view public returns(bool){
         return whitelist[userAddress] == WhitelistStatus.Approved;
+    }
+
+    function getProjects() view public returns(ProjectAndToken[] memory){
+        return projectsAndTokens;
     }
 
     modifier userWhitelisted(address userAddress){
@@ -43,7 +58,7 @@ contract ProjectTokenFactory {
     }
 
 
-    function whitelistUser(address userAddress) public onlyAPI() {
-        whitelist[userAddress] = WhitelistStatus.Approved;
+    function whitelistUser(address userAddress, WhitelistStatus status) public onlyAPI() {
+        whitelist[userAddress] = status;
     }
 }

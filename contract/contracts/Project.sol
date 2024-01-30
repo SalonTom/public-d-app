@@ -11,7 +11,9 @@ contract Project {
     string public title;
     string public description;
     
-    constructor(address _owner){
+    constructor(address _owner, string memory _title, string memory _description){
         owner = _owner;
+        title = _title;
+        description = _description;
     }
 }
