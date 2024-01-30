@@ -15,8 +15,10 @@ def connect():
 
     with open('Address.json', 'r') as address_file:
         address_data = json.load(address_file)
-        address = address_data.get("address")
+        address = address_data.get("Voting")
 
+    print("Adresse : " , address)
+    print("ABI : " , abi)
     contract = web3.eth.contract(address=address, abi=abi)
 
 
@@ -24,17 +26,15 @@ def update_whitelist(eth_address, status):
     global contract
 
     if contract is not None:
-        private_key = 'YOUR_PRIVATE_KEY'
-        account = web3.eth.account.privateKeyToAccount(private_key)
+        private_key = '0xac0974bec39a17e36ba4a6b4d238ff944bacb478cbed5efcae784d7bf4f2ff80'
+        caller = '0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266'
+        nonce = web3.eth.get_transaction_count(caller)
 
-        txn_dict = contract.functions.whitelistUser(eth_address, status).buildTransaction({
-            'gas': 2000000,
-            'gasPrice': web3.toWei('50', 'gwei'),
-            'nonce': web3.eth.getTransactionCount(account.address),
-        })
+        chain_id = web3.eth.chain_id
 
-        signed_txn = web3.eth.account.signTransaction(txn_dict, private_key)
+        # Call your function
+        call_function = contract.functions.whitelistUser(eth_address, status).call()
 
-        tx_hash = web3.eth.sendRawTransaction(signed_txn.rawTransaction)
+        #print(contract.functions.whitelist(eth_address).call())
 
-        web3.eth.waitForTransactionReceipt(tx_hash)
+
