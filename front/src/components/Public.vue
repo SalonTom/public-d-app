@@ -1,5 +1,7 @@
 <template>
-    <img src="../assets/svg/paragraph.svg"> <span class="logo">ublic</span>
+    <div>
+        <img src="../assets/svg/paragraph.svg"> <span class="logo">ublic</span>
+    </div>
 </template>
 
 <style scoped>

@@ -4,6 +4,8 @@ import HomeView from '../views/HomeView.vue';
 // @ts-ignore
 import RegisterView from '../views/RegisterView.vue';
 // @ts-ignore
+import CommonView from '../views/CommonView.vue';
+// @ts-ignore
 import FeedView from '../views/FeedView.vue';
 
 import { useAuthStore } from '@/stores/AuthStore';
@@ -22,9 +24,22 @@ const router = createRouter({
       component: RegisterView
     },
     {
-      path: '/feed',
-      name: 'Feed',
-      component: FeedView
+      path: '/common',
+      name: 'Common',
+      component: CommonView,
+      children : [
+        {
+          path: '/feed',
+          name: 'Feed',
+          component: FeedView
+        },
+        {
+          path: '/project',
+          name: 'My Project',
+          component: FeedView
+        }
+      ],
+      redirect: { name : 'Feed' }
     },
     {
       path: '/:pathMatch(.*)*',

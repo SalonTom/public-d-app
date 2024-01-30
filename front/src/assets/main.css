@@ -12,16 +12,26 @@
   overflow: hidden;
 }
 
-a,
-.green {
+a {
   text-decoration: none;
-  color: hsla(160, 100%, 37%, 1);
-  transition: 0.4s;
-  padding: 3px;
+  color: #FAFAFA;
+  padding: 4px 4px 4px 16px;
+  border-radius: 8px;
+  height: calc(40px + var(--figma-ratio));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.router-link-active,
+.router-link-exact-active {
+  background-color: #1D1C20;
+  border: solid 1px #27262A;
+  font-weight: bold;
 }
 
 @media (hover: hover) {
   a:hover {
-    background-color: hsla(160, 100%, 37%, 0.2);
+    background-color: #1D1C20;
   }
 }

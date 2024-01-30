@@ -184,6 +184,10 @@ body {
   font-size: calc(12px + var(--figma-ratio));
 }
 
+.bold {
+  font-weight: bold;
+}
+
 /** Shadow */
 
 .shadow {

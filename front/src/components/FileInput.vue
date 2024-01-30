@@ -42,7 +42,7 @@ export default defineComponent({
 
                 setTimeout(() => {
                     useAuthStore().userIsRegistered = true;
-                    router.push({ name : 'Feed' });
+                    router.push({ name : 'Common' });
                 }, 2000)
             }
         }
