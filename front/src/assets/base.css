@@ -183,3 +183,26 @@ body {
 .short {
   font-size: calc(12px + var(--figma-ratio));
 }
+
+.bold {
+  font-weight: bold;
+}
+
+/** Shadow */
+
+.shadow {
+  box-shadow: 0px 4px 16px 0px #19191B;
+}
+
+/** Strokes */
+
+.main-stroke {
+  border: solid 1px #27262A;
+  border-radius: 8px;
+}
+
+/** Backgrounds */
+
+.main-background {
+  background-color: #1D1C20;
+}

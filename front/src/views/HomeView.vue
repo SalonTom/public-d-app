@@ -16,7 +16,7 @@
         <div>
           <div class="emphasis">The first adult-exclusive investment platform with AI-driven age recognition.</div>
           <div style="display: flex; align-items: center; gap: calc(16px + var(--figma-ratio)); margin-top: calc(24px + var(--figma-ratio));">
-            <div class="btn btn-primary" @click="goToProfileCreationAsync">Connect you wallet and let's go !</div>
+            <div class="btn btn-primary" @click="connectToWalletAsync">Connect you wallet and let's go !</div>
             <div class="btn btn-txt" @click="connectToWalletAsync">Already registered ? Log in.</div>
           </div>
         </div>
@@ -32,19 +32,33 @@ import router from '@/router';
 import { defineComponent } from 'vue';
 
 import MetamaskConnector from "@/utils/MetamaskConnector";
+import { useAuthStore } from '@/stores/AuthStore';
 
 export default defineComponent({
   components: {
     Public
   },
   methods: {
-    async goToProfileCreationAsync() : Promise<void> {
-      await router.push({ name : 'Profile creation'})
-    },
-
     async connectToWalletAsync() : Promise<void> {
-      const { provider, signer } = await MetamaskConnector.metamaskConnectorAsync();
-      console.log(signer, provider);
+      try {
+        const { provider, signer } = await MetamaskConnector.metamaskConnectorAsync();
+
+        const authStore = useAuthStore();
+        authStore.init(signer, provider);
+        
+        authStore.provider = provider;
+        authStore.signer = signer;
+
+        // Check if the user is registered or not
+        if (authStore.userIsRegistered) {
+          router.push({ name : 'Feed' });
+        } else {
+          router.push({ name : 'Register' })
+        }
+
+      } catch (error) {
+        alert(error);
+      }
     }
   }
 })
