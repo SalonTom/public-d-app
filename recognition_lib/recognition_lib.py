@@ -1,4 +1,4 @@
-import image_utils, text_utils
+import image_utils, text_utils, web3_utils
 from datetime import datetime, timedelta
 
 
@@ -17,25 +17,27 @@ def is_adult(date_string):
     except ValueError:
         return False
 
-def search_pii(file_path):
+
+async def search_pii(file_path, eth_address):
     rules = text_utils.get_regexes()
+
     original, intelligible = image_utils.scan_image_for_text(file_path)
     text = original
 
     map_occurences = text_utils.count_word_occurrences(text)
-    max_id = (0,'')
+    max_id = (0, '')
     date_of_birth = text_utils.date_of_birth_pii(text, rules)
     if date_of_birth:
         card_numbers = text_utils.card_number_pii(text, rules)
-        for number in card_numbers :
-            if map_occurences.get(number.lower()) is not None and map_occurences.get(number.lower()) > max_id[0] :
-                max_id = (map_occurences.get(number.lower()),number.lower())
+        for number in card_numbers:
+            if map_occurences.get(number.lower()) is not None and map_occurences.get(number.lower()) > max_id[0]:
+                max_id = (map_occurences.get(number.lower()), number.lower())
     old_date_of_birth = text_utils.old_date_of_birth_pii(text, rules)
     if old_date_of_birth:
         old_card_numbers = text_utils.old_card_number_pii(text, rules)
-        for number in old_card_numbers :
-            if map_occurences.get(number.lower()) is not None and map_occurences.get(number.lower()) > max_id[0] :
-                max_id = (map_occurences.get(number.lower()),number.lower())
+        for number in old_card_numbers:
+            if map_occurences.get(number.lower()) is not None and map_occurences.get(number.lower()) > max_id[0]:
+                max_id = (map_occurences.get(number.lower()), number.lower())
 
     is_adult_bool = False
     id = ""
@@ -47,10 +49,12 @@ def search_pii(file_path):
         id = max_id[1]
 
     result = {
-            "is_adult": is_adult_bool,
-            "id": id
-        }
+        "is_adult": is_adult_bool,
+        "id": id
+    }
+    if not is_adult_bool:
+        web3_utils.update_whitelist(eth_address, 0)
+    else:
+        web3_utils.update_whitelist(eth_address, 2)
 
     return result
-
-
