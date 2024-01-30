@@ -16,8 +16,8 @@ export const useAuthStore = defineStore('authStore', {
             this.provider = provider;
 
             // Code to call the smart contrat to see if the user is registered + requester
-            this.userIsRegistered = true;
-            this.userHasRequestedAccess = true;
+            this.userIsRegistered = false;
+            this.userHasRequestedAccess = false;
         }
     }
 });

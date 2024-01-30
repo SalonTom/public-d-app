@@ -7,6 +7,8 @@ import RegisterView from '../views/RegisterView.vue';
 import CommonView from '../views/CommonView.vue';
 // @ts-ignore
 import FeedView from '../views/FeedView.vue';
+// @ts-ignore
+import ProjectView from '../views/ProjectView.vue';
 
 import { useAuthStore } from '@/stores/AuthStore';
 
@@ -36,7 +38,7 @@ const router = createRouter({
         {
           path: '/project',
           name: 'My Project',
-          component: FeedView
+          component: ProjectView
         }
       ],
       redirect: { name : 'Feed' }

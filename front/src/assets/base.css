@@ -200,3 +200,9 @@ body {
   border: solid 1px #27262A;
   border-radius: 8px;
 }
+
+/** Backgrounds */
+
+.main-background {
+  background-color: #1D1C20;
+}

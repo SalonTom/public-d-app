@@ -35,3 +35,22 @@ a {
     background-color: #1D1C20;
   }
 }
+
+
+/* Define scrollbar styles */
+::-webkit-scrollbar {
+  width: 8px; /* Width of vertical scrollbar */
+  border-radius: 10px;
+  padding-left: 4px;
+}
+
+/* Track */
+::-webkit-scrollbar-track {
+  background: transparent; /* Color of the track */
+}
+
+/* Handle */
+::-webkit-scrollbar-thumb {
+  background: #27262A; /* Color of the scroll thumb */
+  border-radius: 10px; /* Make scrollbar thumb round */
+}

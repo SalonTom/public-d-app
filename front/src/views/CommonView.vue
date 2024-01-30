@@ -3,7 +3,7 @@
         <div>
             <NavBar></NavBar>
         </div>
-        <div>
+        <div style="padding: 20px 32px 32px 32px; width: 100%;">
             <RouterView></RouterView>
         </div>
     </div>
