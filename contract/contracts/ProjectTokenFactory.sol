@@ -6,12 +6,16 @@ import "contracts/Project.sol";
 
 contract ProjectTokenFactory {
 
-    address constant public whitelistApiAddress = 0x5B38Da6a701c568545dCfcB03FcB875f56beddC4;
+    address public whitelistApiAddress;
 
     enum WhitelistStatus {
         NotApplied,
         Pending,
         Approved
+    }
+    
+    constructor(address _whitelistApiAddress) {
+        whitelistApiAddress = _whitelistApiAddress;
     }
 
     mapping(address => WhitelistStatus) public whitelist;

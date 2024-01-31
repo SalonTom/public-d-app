@@ -1,21 +1,48 @@
-import { ethers } from "hardhat";
+import { ethers }from "hardhat";
+import { Wallet, SigningKey } from "ethers";
+import { ProjectTokenFactory } from "../typechain-types";
+const path = require("path");
 
 async function main() {
-  const currentTimestampInSeconds = Math.round(Date.now() / 1000);
-  const unlockTime = currentTimestampInSeconds + 60;
+  // Types Wallet | HardhatEthersSigner 
+  let apiSigner;
+  
+  if((await ethers.provider.getNetwork()).name === "hardhat") {
+    console.log("Hardhat local network detected, setting the first account as API signer");
+    apiSigner = (await ethers.getSigners())[0];
+  } else{
+    console.log("Remote network detected, generating a random API signer");
+    let signingKey = ethers.randomBytes(32);
+    apiSigner = new Wallet(new ethers.SigningKey(signingKey), ethers.provider);
+  }
+  const projectTokenFactory = await ethers.deployContract("ProjectTokenFactory", [apiSigner.address]);
 
-  const lockedAmount = ethers.parseEther("0.001");
+  await projectTokenFactory.waitForDeployment();
 
-  const lock = await ethers.deployContract("Lock", [unlockTime], {
-    value: lockedAmount,
-  });
+  console.log(`Contract deployed to ${projectTokenFactory.target}, API signer is ${apiSigner.address} ${"privateKey" in apiSigner ? ` with private key ${apiSigner.privateKey}` : ''}`);
 
-  await lock.waitForDeployment();
+  // We also save the contract's artifacts and address in the frontend directory
+  saveFrontendFiles(projectTokenFactory);
+}
 
-  console.log(
-    `Lock with ${ethers.formatEther(
-      lockedAmount
-    )}ETH and unlock timestamp ${unlockTime} deployed to ${lock.target}`
+function saveFrontendFiles(voting: ProjectTokenFactory) {
+  const fs = require("fs");
+  const contractsDir = path.join(__dirname, "..", "contracts");
+
+  if (!fs.existsSync(contractsDir)) {
+    fs.mkdirSync(contractsDir);
+  }
+
+  fs.writeFileSync(
+    path.join(contractsDir, "Address.json"),
+    JSON.stringify({ Voting: voting.target }, undefined, 2)
+  );
+
+  const ProjectTokenFactoryArtifact = artifacts.readArtifactSync("ProjectTokenFactory");
+
+  fs.writeFileSync(
+    path.join(contractsDir, "ProjectTokenFactory.json"),
+    JSON.stringify(ProjectTokenFactoryArtifact, null, 2)
   );
 }
 
