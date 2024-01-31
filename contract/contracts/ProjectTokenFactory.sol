@@ -1,12 +1,10 @@
-   // SPDX-License-Identifier: MIT
+// SPDX-License-Identifier: MIT
 pragma solidity ^0.8.20;
 
 import "contracts/ProjectToken.sol";
-import "contracts/Project.sol";
 
 contract ProjectTokenFactory {
-
-    address constant public whitelistApiAddress = 0xf39Fd6e51aad88F6F4ce6aB8827279cffFb92266;
+    address public apiAddress;
 
     enum WhitelistStatus {
         NotApplied,
@@ -14,51 +12,69 @@ contract ProjectTokenFactory {
         Approved
     }
 
+    constructor(address _apiAddress) {
+        apiAddress = _apiAddress;
+    }
+
     mapping(address => WhitelistStatus) public whitelist;
 
-    address[] internal deployedTokens;
+    struct ProjectStruct{
+        address owner;
+        string title;
+        string description;
+        uint256 initialValuation;
+        string fiatCurrency;
+    }
 
-    struct ProjectAndToken{
-        Project project;
+    event UserWhitelisted(address u);
+    event UserPending(address u);
+
+    struct ProjectAndToken {
+        ProjectStruct project;
         ProjectToken token;
     }
 
     ProjectAndToken[] internal projectsAndTokens;
-
-    function createProject(string memory _title, string memory _description, string memory _symbol, uint256 _initialSupply) public userWhitelisted(msg.sender) returns (ProjectAndToken memory){
-        Project project = new Project(msg.sender, _title, _description);
-        ProjectToken token = new ProjectToken(_title, _symbol, _initialSupply, this);
-        address tokenAddress = address(token);
-        deployedTokens.push(tokenAddress);
+    
+    function createProject(string memory _title, string memory _description, string memory _symbol, uint256 _initialSupply, uint256 _initialValuation, string memory _fiatCurrency) public userWhitelisted(msg.sender) returns (ProjectAndToken memory){
+        ProjectStruct memory project = ProjectStruct(msg.sender, _title, _description, _initialValuation, _fiatCurrency);
+        ProjectToken token = new ProjectToken(msg.sender, _title, _symbol, _initialSupply, this);
         ProjectAndToken memory p_t = ProjectAndToken(project, token);
         projectsAndTokens.push(p_t);
         return p_t;
     }
 
-    function getDeployedTokens() public view returns (address[] memory) {
-        return deployedTokens;
-    }
-
-    function isWhitelisted(address userAddress) view public returns(bool){
+    function isWhitelisted(address userAddress) public view returns (bool) {
         return whitelist[userAddress] == WhitelistStatus.Approved;
     }
 
-    function getProjects() view public returns(ProjectAndToken[] memory){
+    function getProjects() public view returns (ProjectAndToken[] memory) {
         return projectsAndTokens;
     }
 
-    modifier userWhitelisted(address userAddress){
+    modifier userWhitelisted(address userAddress) {
         require(isWhitelisted(userAddress), "User is not whitelisted");
         _;
     }
 
     modifier onlyAPI(address userAddress) {
-        require(userAddress == whitelistApiAddress, "Only API can call this function");
+        require(
+            userAddress == apiAddress,
+            "Only API can call this function"
+        );
         _;
     }
 
-
-    function whitelistUser(address userAddress, WhitelistStatus status) public onlyAPI(msg.sender) {
+    function whitelistUser(
+        address userAddress,
+        WhitelistStatus status
+    ) public onlyAPI(msg.sender) {
         whitelist[userAddress] = status;
+        if(status == WhitelistStatus.Approved){
+            emit UserWhitelisted(userAddress);
+        }
+        else if(status == WhitelistStatus.Pending){
+            emit UserPending(userAddress);
+        }
     }
 }
