@@ -31,19 +31,28 @@ export default defineComponent({
         }
     },
     methods: {
-        uploadImageAsync() {
+        async uploadImageAsync() {
             const fileInput = this.$refs.fileInput as HTMLInputElement;
             const file = fileInput?.files ? fileInput.files[0] : null;
 
-            if (file) {
-                console.log("call to quentin api");
+            try {
+                if (file) {
+                    const formData = new FormData();
+                    formData.append('image', file);
 
-                useAuthStore().userHasRequestedAccess = true;
+                    console.log("call to quentin api");
+                    const authStore = useAuthStore();
+                    console.log('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address)
 
-                setTimeout(() => {
-                    useAuthStore().userIsRegistered = true;
-                    router.push({ name : 'Common' });
-                }, 2000)
+                    await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address, {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    useAuthStore().userHasRequestedAccess = true;
+                }
+            } catch(error) {
+                alert(error);
             }
         }
     }
