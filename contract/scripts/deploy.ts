@@ -25,7 +25,7 @@ async function main() {
   saveFrontendFiles(projectTokenFactory);
 }
 
-function saveFrontendFiles(voting: ProjectTokenFactory) {
+function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory) {
   const fs = require("fs");
   const contractsDir = path.join(__dirname, "..", "contracts");
 
@@ -35,7 +35,7 @@ function saveFrontendFiles(voting: ProjectTokenFactory) {
 
   fs.writeFileSync(
     path.join(contractsDir, "Address.json"),
-    JSON.stringify({ Voting: voting.target }, undefined, 2)
+    JSON.stringify({ Address: projectTokenFactory.target }, undefined, 2)
   );
 
   const ProjectTokenFactoryArtifact = artifacts.readArtifactSync("ProjectTokenFactory");

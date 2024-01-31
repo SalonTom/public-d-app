@@ -2,10 +2,9 @@
 pragma solidity ^0.8.20;
 
 import "contracts/ProjectToken.sol";
-import "contracts/Project.sol";
 
 contract ProjectTokenFactory {
-    address public whitelistApiAddress;
+    address public apiAddress;
 
     enum WhitelistStatus {
         NotApplied,
@@ -13,43 +12,36 @@ contract ProjectTokenFactory {
         Approved
     }
 
-    constructor(address _whitelistApiAddress) {
-        whitelistApiAddress = _whitelistApiAddress;
+    constructor(address _apiAddress) {
+        apiAddress = _apiAddress;
     }
 
     mapping(address => WhitelistStatus) public whitelist;
 
-    address[] internal deployedTokens;
+    struct ProjectStruct{
+        address owner;
+        string title;
+        string description;
+        uint256 initialValuation;
+        string fiatCurrency;
+    }
+
+    event UserWhitelisted(address u);
+    event UserPending(address u);
 
     struct ProjectAndToken {
-        Project project;
+        ProjectStruct project;
         ProjectToken token;
     }
 
     ProjectAndToken[] internal projectsAndTokens;
-
-    function createProject(
-        string memory _title,
-        string memory _description,
-        string memory _symbol,
-        uint256 _initialSupply
-    ) public userWhitelisted(msg.sender) returns (ProjectAndToken memory) {
-        Project project = new Project(msg.sender, _title, _description);
-        ProjectToken token = new ProjectToken(
-            _title,
-            _symbol,
-            _initialSupply,
-            this
-        );
-        address tokenAddress = address(token);
-        deployedTokens.push(tokenAddress);
+    
+    function createProject(string memory _title, string memory _description, string memory _symbol, uint256 _initialSupply, uint256 _initialValuation, string memory _fiatCurrency) public userWhitelisted(msg.sender) returns (ProjectAndToken memory){
+        ProjectStruct memory project = ProjectStruct(msg.sender, _title, _description, _initialValuation, _fiatCurrency);
+        ProjectToken token = new ProjectToken(msg.sender, _title, _symbol, _initialSupply, this);
         ProjectAndToken memory p_t = ProjectAndToken(project, token);
         projectsAndTokens.push(p_t);
         return p_t;
-    }
-
-    function getDeployedTokens() public view returns (address[] memory) {
-        return deployedTokens;
     }
 
     function isWhitelisted(address userAddress) public view returns (bool) {
@@ -67,7 +59,7 @@ contract ProjectTokenFactory {
 
     modifier onlyAPI(address userAddress) {
         require(
-            userAddress == whitelistApiAddress,
+            userAddress == apiAddress,
             "Only API can call this function"
         );
         _;
@@ -78,5 +70,11 @@ contract ProjectTokenFactory {
         WhitelistStatus status
     ) public onlyAPI(msg.sender) {
         whitelist[userAddress] = status;
+        if(status == WhitelistStatus.Approved){
+            emit UserWhitelisted(userAddress);
+        }
+        else if(status == WhitelistStatus.Pending){
+            emit UserPending(userAddress);
+        }
     }
 }
