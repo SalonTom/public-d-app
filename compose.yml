@@ -1,0 +1,36 @@
+services:
+
+  front:
+    build: ./front
+    image: public/front_image
+    ports:
+      - "5173:5173"
+
+    volumes:
+      - "C:\\001_IMT\\001_COURS\\BLOCKCHAIN\\001_PROJETS\\public\\shared_data:/shared_data"
+    
+    container_name: public_front
+
+  ia-server:
+    build: ./recognition_lib
+    image: public/ia-server
+    ports:
+      - "5000:5000"
+
+    volumes:
+      - "C:\\001_IMT\\001_COURS\\BLOCKCHAIN\\001_PROJETS\\public\\shared_data:/shared_data"
+
+    container_name: public_ia
+
+  contracts:
+    build: ./contract
+    image: public/contracts
+    ports:
+      - "8545:8545"
+
+    volumes:
+      - "C:\\001_IMT\\001_COURS\\BLOCKCHAIN\\001_PROJETS\\public\\shared_data:/contract/shared_data"
+
+    container_name: public_contracts
+
+  

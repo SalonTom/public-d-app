@@ -10,11 +10,11 @@ web3 = Web3(Web3.HTTPProvider(net_url))
 def connect():
     global contract
     # Récupération du fichier abi
-    with open('ProjectTokenFactory.json', 'r') as contract_file:
+    with open('./shared_data/ProjectTokenFactory.json', 'r') as contract_file:
         contract_data = json.load(contract_file)
         abi = contract_data.get("abi")
 
-    with open('Address.json', 'r') as address_file:
+    with open('./shared_data/Address.json', 'r') as address_file:
         address_data = json.load(address_file)
         address = address_data.get("Address")
 

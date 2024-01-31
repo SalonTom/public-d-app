@@ -22,3 +22,4 @@ spacy
 flask
 Flask-Cors
 text_utils
+web3
