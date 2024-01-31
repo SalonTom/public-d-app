@@ -8,6 +8,7 @@ def is_adult(date_string):
         birth_date = datetime.strptime(date_string, date_format)
 
         current_date = datetime.now()
+        print(birth_date)
 
         age = current_date.year - birth_date.year - (
                 (current_date.month, current_date.day) < (birth_date.month, birth_date.day))
