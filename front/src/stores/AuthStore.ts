@@ -12,7 +12,6 @@ export const useAuthStore = defineStore('authStore', {
 
             if (address) {
                 const status = await ContractUtils.getContract().methods.whitelist(address).call();
-                console.log(status)
     
                 // Code to call the smart contrat to see if the user is registered + requester
                 this.userStatus = Number(status);

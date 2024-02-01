@@ -39,9 +39,6 @@ export default defineComponent({
                     const formData = new FormData();
                     formData.append('image', file);
 
-                    console.log("call to quentin api");
-                    console.log('http://127.0.0.1:5000/verify_age?eth_address=' + this.authStore.signer)
-
                     await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + this.authStore.signer, {
                         method: 'POST',
                         body: formData
