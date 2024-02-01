@@ -1,23 +1,23 @@
-import { BrowserProvider, JsonRpcSigner } from "ethers";
+import ContractUtils from "@/utils/ContractUtils";
 import { defineStore } from "pinia";
 
 export const useAuthStore = defineStore('authStore', {
     state : () => ({
-        connectedAddress : '',
-        signer : null as JsonRpcSigner | null,
-        provider : undefined as BrowserProvider | undefined,
-        userIsRegistered : false,
-        userHasRequestedAccess : false
+        signer : '',
+        userStatus : 0
     }),
-
     actions : {
-        init(signer : JsonRpcSigner | null, provider : BrowserProvider | undefined) {
-            this.signer = signer;
-            this.provider = provider;
+        async init(address: any) {
+            this.signer = address;
 
-            // Code to call the smart contrat to see if the user is registered + requester
-            this.userIsRegistered = false;
-            this.userHasRequestedAccess = false;
+            if (address) {
+                const status = await ContractUtils.getContract().methods.whitelist(address).call();
+                console.log(status)
+    
+                // Code to call the smart contrat to see if the user is registered + requester
+                this.userStatus = Number(status);
+            }
         }
-    }
+    },
+    persist: true
 });

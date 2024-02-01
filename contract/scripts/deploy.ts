@@ -34,7 +34,7 @@ async function main() {
 
 function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory,apiSigner) {
   const fs = require("fs");
-  const contractsDir = path.join(__dirname, "..", "contracts");
+  const contractsDir = path.join(__dirname, "../..", "shared_contracts_info");
 
   if (!fs.existsSync(contractsDir)) {
     fs.mkdirSync(contractsDir);

@@ -1,5 +1,5 @@
 <template>
-    <div v-if="userHasRequested" style="display: flex; gap: 16px; align-items: center; justify-content: space-evenly;">
+    <div v-if="authStore.userStatus === 1" style="display: flex; gap: 16px; align-items: center; justify-content: space-evenly;">
         <div style="
             border-radius: 100%;
             background-color: #1D1C20;
@@ -19,15 +19,14 @@
     </div>
 </template>
 <script lang="ts">  
-import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
-import { defineComponent, ref } from 'vue';
+import { defineComponent } from 'vue';
 
 export default defineComponent({
-    props: {
-        userHasRequested : {
-            type: Boolean,
-            required : true
+    setup() {
+        const authStore = useAuthStore();
+        return {
+            authStore
         }
     },
     methods: {
@@ -41,15 +40,14 @@ export default defineComponent({
                     formData.append('image', file);
 
                     console.log("call to quentin api");
-                    const authStore = useAuthStore();
-                    console.log('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address)
+                    console.log('http://127.0.0.1:5000/verify_age?eth_address=' + this.authStore.signer)
 
-                    await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address, {
+                    await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + this.authStore.signer, {
                         method: 'POST',
                         body: formData
                     });
 
-                    useAuthStore().userHasRequestedAccess = true;
+                    this.authStore.userStatus = 1;
                 }
             } catch(error) {
                 alert(error);

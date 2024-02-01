@@ -51,12 +51,15 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicRoutes = ['Home', 'Register'];
+  const publicRoutes = ['Home'];
 
-  if (!publicRoutes.includes(to.name as string) && !useAuthStore().userIsRegistered) {
-    router.replace({ name : 'Home' });
-    next();
-    return false;
+  if (!publicRoutes.includes(to.name as string) && useAuthStore().userStatus != 2) {
+
+    if ((to.name as string) !== 'Register') {
+      router.replace({ name : 'Home' });
+      next();
+      return false;
+    }
   }
 
   next();

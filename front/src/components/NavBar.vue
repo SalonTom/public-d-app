@@ -27,7 +27,7 @@
                     text-overflow: ellipsis;
                     padding: 8px 12px;
                     overflow: hidden;">
-                {{ authStore.signer?.address }}
+                {{ authStore.signer }}
             </div>
         </div>
     </div>

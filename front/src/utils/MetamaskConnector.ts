@@ -1,4 +1,4 @@
-import { ethers } from "ethers";
+import Web3 from 'web3';
 
 declare global {
   interface Window{
@@ -6,21 +6,30 @@ declare global {
   }
 }
 
-export default class MetamaskConnector {
+let web3;
+let account;
 
-    constructor() {}
+export const MetamaskConnector = async () => {
+  try {
+    if (window.ethereum) {
+      web3 = new Web3(window.ethereum);
 
-    static async metamaskConnectorAsync() {
-        let signer = null;
-        let provider;
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
 
-        if (window.ethereum == null) {
-            alert("MetaMask not installed. Please proceed to its installation.");
-        } else {
-            provider = new ethers.BrowserProvider(window.ethereum);
-            signer = await provider.getSigner();
-        }
+      const accounts = await web3.eth.getAccounts();
+      account = accounts[0];
 
-        return Promise.resolve({ provider, signer})
+      window.ethereum.on('accountsChanged', (newAccounts: any[]) => {
+        account = newAccounts[0];
+      });
+
+      return { web3, account };
+    } else {
+      alert('MetaMask not detected. Please install MetaMask.');
+      return null;
     }
+  } catch (error) {
+    alert('Error connecting to MetaMask:' + error);
+    return null;
+  }
 };
