@@ -25,7 +25,7 @@ contract ProjectTokenMarket {
     
     function purchaseTokens(address token, uint256 amount) public payable {
         ProjectToken _token = ProjectToken(token);
-        require(amount > 0 && amount <= listings[_token].amount, "Invalid amount");
+        require(amount > 0 && amount <= listings[_token].amount, "Cannot buy that amount of tokens");
         
         // Calcul du montant total à payer
         uint256 totalPayment = (amount * listings[_token].pricePerToken) / (1*10**18);
@@ -35,7 +35,6 @@ contract ProjectTokenMarket {
             revert(string(abi.encodePacked("Insufficient payment. Required : ", Strings.toString(totalPayment))));
         }
         
-        // require(msg.value >= amount * listings[_token].pricePerToken, "Incorrect payment amount");
         address owner = _token.projectOwner();
         require(msg.sender != owner, "You can't buy your own tokens");
 
