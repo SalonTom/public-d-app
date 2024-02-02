@@ -9,24 +9,30 @@ import asyncio
 
 app = Flask(__name__)
 
+# Dossier temporaire d'upload
 Upload = 'static/upload'
 app.config['uploadFolder'] = Upload
+
+
 executor = ThreadPoolExecutor()
 
 CORS(app)
 
+# Traitement asynchrone de reconnaissance de l'image pour effectuer le traitement en tâche de fond
 def async_process_image(image, eth_address,temp_file_path):
     loop = asyncio.new_event_loop()
     asyncio.set_event_loop(loop)
     loop.run_until_complete(search_pii(image,eth_address))
     os.remove(temp_file_path)
 
-
+# Endpoint REST de vérification d'identité
 @app.route('/verify_age', methods=['POST'])
 def verify_age():
     web3_utils.connect()
+    # Addresse du compte demandant la vérification d'âge
     eth_address = request.args.get('eth_address')
     if eth_address is not None:
+        # Passage du statut en attente dans la whitelist
         web3_utils.update_whitelist(eth_address, 1)
         if 'image' in request.files:
             try:

@@ -62,23 +62,17 @@ def old_card_number_pii(text,rules):
     card_number_addresses = list(set(filter(None, card_number_addresses)))
     return card_number_addresses
 
-
+# Renvoie une map du nombre d'occurences par mot qui est détecté dans le texte
 def count_word_occurrences(text):
-    # Initialiser un dictionnaire pour stocker les occurrences de chaque mot
     word_occurrences = {}
 
-    # Séparer le texte en mots
     words = text.split()
 
-    # Parcourir chaque mot
     for word in words:
-        # Supprimer la ponctuation éventuelle
         word = word.strip(".,!?")
 
-        # Convertir le mot en minuscules pour éviter les doublons (casse insensible)
         word = word.lower()
 
-        # Mettre à jour le dictionnaire des occurrences
         if word in word_occurrences:
             word_occurrences[word] += 1
         else:
