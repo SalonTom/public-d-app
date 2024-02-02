@@ -19,15 +19,18 @@
         </div>
         <div>
             <div style="height: 2px; width: 100%; margin-bottom: 16px; background-color: #27262A;"></div>
-            <div class="short bold" 
-                style="
-                    border: solid 1px #27262A;
-                    border-radius: 8px;
-                    background-color: #1D1C20;
-                    text-overflow: ellipsis;
-                    padding: 8px 12px;
-                    overflow: hidden;">
-                {{ authStore.signer }}
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <div class="short bold" 
+                    style="
+                        border: solid 1px #27262A;
+                        border-radius: 8px;
+                        background-color: #1D1C20;
+                        text-overflow: ellipsis;
+                        padding: 8px 12px;
+                        overflow: hidden;">
+                    {{ authStore.signer }}
+                </div>
+                <img src="../assets/svg/logout.svg" style="cursor: pointer;" @click="logout">
             </div>
         </div>
     </div>
@@ -36,6 +39,7 @@
 import { defineComponent } from 'vue';
 import Public from '@/components/Public.vue';
 import { useAuthStore } from '@/stores/AuthStore';
+import router from '@/router';
 
 
 export default defineComponent({
@@ -47,6 +51,12 @@ export default defineComponent({
 
         return {
             authStore
+        }
+    },
+    methods: {
+        logout() {
+            this.authStore.reset();
+            router.replace({ name : 'Home' });
         }
     }
 })

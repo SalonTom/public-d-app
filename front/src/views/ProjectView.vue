@@ -27,11 +27,13 @@
                         flex-direction: column;
                         gap: 12px;">
     
-                    <div class="bold">
-                        [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
-                    </div>
-                    <div style="max-height: calc(80px + var(--figma-ratio)); overflow: hidden; text-overflow: ellipsis;">
-                        {{ projectAndToken.project.description }}
+                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                        <div class="bold">
+                            [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
+                        </div>
+                        <div v-if="!!numberOfTokenOwned || true" class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
+                            Balance : {{ ConversionUtils.from(numberOfTokenOwned) }} {{ projectAndToken.project.symbol }}
+                        </div>
                     </div>
                 </div>
                 <div class="shadow main-background main-stroke" style="padding: 12px 8px;margin-top: 16px;">
@@ -212,6 +214,8 @@ export default defineComponent({
 
         const nbTokenInvest = ref(0);
 
+        const numberOfTokenOwned = ref(BigInt(0));
+
         const mpListing = ref();
 
         return {
@@ -227,6 +231,7 @@ export default defineComponent({
             remainingTokens,
             nbTokenInvest,
             mpListing,
+            numberOfTokenOwned,
             ConversionUtils
         }
     },
@@ -243,6 +248,8 @@ export default defineComponent({
 
             this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.projectAndToken.project.initialTokenNumber)) * 100);
             this.userHasProject = true;
+
+            this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
         }
     },
     methods: {
@@ -258,10 +265,15 @@ export default defineComponent({
             if (!this.formErrors.length) {
                 await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol.toUpperCase(), ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                 
-                this.projectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
-                await ContractUtils.getContractToken(this.projectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
-                await ContractUtils.getContractMarket().methods.addTokens(this.projectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                const newProjectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
+                await ContractUtils.getContractToken(newProjectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                await ContractUtils.getContractMarket().methods.addTokens(newProjectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                 this.newProject = new Project();
+                this.projectAndToken = newProjectAndToken;
+
+                this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
+                this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
+                this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
             }
         },
 

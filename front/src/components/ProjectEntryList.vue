@@ -10,8 +10,13 @@
                     flex-direction: column;
                     gap: 12px">
 
-                <div class="bold">
-                    [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
+                <div style="display: flex; justify-content: space-between; width: 100%;">
+                    <div class="bold">
+                        [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
+                    </div>
+                    <div v-if="!!numberOfTokenOwned || true" class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
+                        Balance : {{ ConversionUtils.from(numberOfTokenOwned) }} {{ projectAndToken.project.symbol }}
+                    </div>
                 </div>
                 <div style="max-height: calc(80px + var(--figma-ratio)); overflow: hidden; text-overflow: ellipsis;">
                     {{ projectAndToken.project.description }}
@@ -98,22 +103,23 @@ export default defineComponent({
     },
     setup($props) {
 
-        console.log($props)
-
         const projectToken = $props.projectAndToken.token;
         const projectCompletion = ref(0);
         const remainingTokens = ref(0);
+        const numberOfTokenOwned = ref(BigInt(0));
 
         return {
             projectCompletion,
             projectToken,
             remainingTokens,
+            numberOfTokenOwned,
             ConversionUtils
         }
     },
     async mounted () {
         const mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectToken).call() as { amount : bigint, price_per_token: bigint, seller : string};
         this.remainingTokens = ConversionUtils.from(mpListing.amount);
+        this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
     
         this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.$props.projectAndToken.project.initialTokenNumber)) * 100);
     },

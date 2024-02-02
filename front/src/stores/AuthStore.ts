@@ -16,6 +16,10 @@ export const useAuthStore = defineStore('authStore', {
                 // Code to call the smart contrat to see if the user is registered + requester
                 this.userStatus = Number(status);
             }
+        },
+        reset() {
+            this.signer = '';
+            this.userStatus = 0;
         }
     },
     persist: true
