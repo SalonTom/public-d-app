@@ -3,6 +3,8 @@ pragma solidity ^0.8.0;
 
 import "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import "contracts/ProjectToken.sol";
+import "@openzeppelin/contracts/utils/Strings.sol";
+
 contract ProjectTokenMarket {
     struct Listing{
         address seller;
@@ -11,28 +13,39 @@ contract ProjectTokenMarket {
     }
 
     // Token to listing
-    mapping (ProjectToken => Listing) listings;
+    mapping (ProjectToken => Listing) public listings;
 
-    function addTokens(ProjectToken token, uint256 amount, uint256 pricePerToken) public payable {
+    function addTokens(address token, uint256 amount, uint256 pricePerToken) public payable {
         require(amount > 0, "Amount should be greater than 0");
         require(pricePerToken > 0, "Price per token should be greater than 0");
-        require(token.projectOwner() == msg.sender, "You should be the project owner to sell a token");
-        listings[token] = Listing(msg.sender, amount, pricePerToken);
+        ProjectToken _token = ProjectToken(token);
+        require(_token.projectOwner() == msg.sender, "You should be the project owner to sell a token");
+        listings[_token] = Listing(msg.sender, amount, pricePerToken);
     }
     
-    function purchaseTokens(ProjectToken token, uint256 amount) public payable {
-        require(amount > 0 && amount <= listings[token].amount, "Invalid amount");
-        require(msg.value >= amount * listings[token].pricePerToken, "Incorrect payment amount");
-        address owner = token.projectOwner();
+    function purchaseTokens(address token, uint256 amount) public payable {
+        ProjectToken _token = ProjectToken(token);
+        require(amount > 0 && amount <= listings[_token].amount, "Invalid amount");
+        
+        // Calcul du montant total à payer
+        uint256 totalPayment = (amount * listings[_token].pricePerToken) / (1*10**18);
+
+        // Assertion avec un if suivi d'un revert personnalisé
+        if (msg.value < totalPayment) {
+            revert(string(abi.encodePacked("Insufficient payment. Required : ", Strings.toString(totalPayment))));
+        }
+        
+        // require(msg.value >= amount * listings[_token].pricePerToken, "Incorrect payment amount");
+        address owner = _token.projectOwner();
         require(msg.sender != owner, "You can't buy your own tokens");
 
         // Transfer the tokens from the seller to the buyer
-        token.transferFrom(owner, msg.sender, amount);
+        _token.transferFrom(owner, msg.sender, amount);
 
         // Transfer the payment to the seller
         payable(owner).transfer(msg.value);
 
         // Update the tokens for sale
-        listings[token].amount -= amount;
+        listings[_token].amount -= amount;
     }
 }

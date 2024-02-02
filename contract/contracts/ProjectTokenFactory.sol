@@ -4,6 +4,8 @@ pragma solidity ^0.8.20;
 import "contracts/ProjectToken.sol";
 
 contract ProjectTokenFactory {
+    uint256 constant DECIMALS = 18;
+
     address public apiAddress;
 
     enum WhitelistStatus {
