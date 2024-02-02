@@ -105,7 +105,7 @@
                 
                             <div class="form-group">
                                 <label class="required" for="symbol">Symbol</label>
-                                <input type="text" name="symbol" v-model="newProject.symbol">
+                                <input type="text" name="symbol" v-model="newProject.symbol" style="text-transform:uppercase">
                             </div>
                         </div>
                     </div>
@@ -213,9 +213,12 @@ export default defineComponent({
             });
 
             if (!this.formErrors.length) {
-                await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol, ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer })
+                await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol.toUpperCase(), ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                
+                this.projectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
+                await ContractUtils.getContractToken(this.projectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                await ContractUtils.getContractMarket().methods.addTokens(this.projectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                 this.newProject = new Project();
-                router.replace({ name : 'My Project', query: { project_address : useAuthStore().signer }})
             }
         }
     }

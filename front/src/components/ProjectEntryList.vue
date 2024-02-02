@@ -11,7 +11,7 @@
                     gap: 12px">
 
                 <div class="bold">
-                    {{ projectAndToken.project.title }}
+                    [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
                 </div>
                 <div style="max-height: calc(80px + var(--figma-ratio)); overflow: hidden; text-overflow: ellipsis;">
                     {{ projectAndToken.project.description }}
@@ -33,6 +33,14 @@
                         </div>
                         <div>
                             {{ ConversionUtils.from(projectAndToken.project.initialTokenNumber) }} %
+                        </div>
+                    </div>
+                    <div style="flex-grow: 1;">
+                        <div class="bold">
+                            Available tokens
+                        </div>
+                        <div>
+                            {{ remainingTokens }} {{ projectAndToken.project.symbol }} 
                         </div>
                     </div>
                 </div>
@@ -73,11 +81,12 @@
         </div>
 </template>
 <script lang="ts">
-import { defineComponent, type PropType } from 'vue';
+import { defineComponent, ref, type PropType } from 'vue';
 import ConversionUtils from '@/utils/ConversionUtils';
 import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
 import type ProjectAndToken from '@/models/ProjectAndToken';
+import ContractUtils from '@/utils/ContractUtils';
 
 
 export default defineComponent({
@@ -91,19 +100,26 @@ export default defineComponent({
 
         console.log($props)
 
-        // Call to MP to know the remaining listed tokens DON'T FORGET THE CONVERSION !!
-        const remainingTokens = ConversionUtils.from(BigInt(17)*BigInt(10)**ConversionUtils._nbDecimal);
-        console.log($props.projectAndToken.project.initialTokenNumber)
-        const projectCompletion = Math.round((1 - remainingTokens / ConversionUtils.from($props.projectAndToken.project.initialTokenNumber)) * 100);
+        const projectToken = $props.projectAndToken.token;
+        const projectCompletion = ref(0);
+        const remainingTokens = ref(0);
 
         return {
             projectCompletion,
+            projectToken,
+            remainingTokens,
             ConversionUtils
         }
     },
+    async mounted () {
+        const mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectToken).call() as { amount : bigint, price_per_token: bigint, seller : string};
+        this.remainingTokens = ConversionUtils.from(mpListing.amount);
+    
+        this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.$props.projectAndToken.project.initialTokenNumber)) * 100);
+    },
     methods: {
         goToProjectPage() {
-            router.replace({ 
+            router.push({ 
                 name : 'View Project', 
                 query: { project_address : this.projectAndToken.project.owner }
             });

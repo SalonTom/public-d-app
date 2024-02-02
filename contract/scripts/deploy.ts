@@ -1,6 +1,6 @@
 import { ethers , config }from "hardhat";
 import { Wallet, SigningKey } from "ethers";
-import { ProjectTokenFactory } from "../typechain-types";
+import { ProjectTokenFactory, ProjectTokenMarket } from "../typechain-types";
 const path = require("path");
 
 async function main() {
@@ -26,13 +26,17 @@ async function main() {
 
   await projectTokenFactory.waitForDeployment();
 
+  const projectTokenMarket = await ethers.deployContract("ProjectTokenMarket");
+
+  await projectTokenMarket.waitForDeployment();
+
   console.log(`Contract deployed to ${projectTokenFactory.target}, API signer is ${apiSigner.address} ${"privateKey" in apiSigner ? ` with private key ${apiSigner.privateKey}` : ''}`);
 
   // We also save the contract's artifacts and address in the frontend directory
-  saveFrontendFiles(projectTokenFactory,apiSigner);
+  saveFrontendFiles(projectTokenFactory, projectTokenMarket, apiSigner);
 }
 
-function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory,apiSigner) {
+function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory, projectTokenMarket: ProjectTokenMarket, apiSigner) {
   const fs = require("fs");
   const contractsDir = path.join(__dirname, "../..", "shared_contracts_info");
 
@@ -42,7 +46,7 @@ function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory,apiSigner) {
 
   fs.writeFileSync(
     path.join(contractsDir, "Address.json"),
-    JSON.stringify({ Address: projectTokenFactory.target }, undefined, 2)
+    JSON.stringify({ Address: projectTokenFactory.target, AddressMarket: projectTokenMarket.target }, undefined, 2)
   );
 
   const ProjectTokenFactoryArtifact = artifacts.readArtifactSync("ProjectTokenFactory");
@@ -50,6 +54,20 @@ function saveFrontendFiles(projectTokenFactory: ProjectTokenFactory,apiSigner) {
   fs.writeFileSync(
     path.join(contractsDir, "ProjectTokenFactory.json"),
     JSON.stringify(ProjectTokenFactoryArtifact, null, 2)
+  );
+
+  const ProjectTokenMarket = artifacts.readArtifactSync("ProjectTokenMarket");
+
+  fs.writeFileSync(
+    path.join(contractsDir, "ProjectTokenMarket.json"),
+    JSON.stringify(ProjectTokenMarket, null, 2)
+  );
+
+  const ProjectToken = artifacts.readArtifactSync("ProjectToken");
+
+  fs.writeFileSync(
+    path.join(contractsDir, "ProjectToken.json"),
+    JSON.stringify(ProjectToken, null, 2)
   );
 
 

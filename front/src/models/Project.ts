@@ -2,8 +2,8 @@ export default class Project {
     public owner: string;
     public title: string;
     public description: string;
-    public initialValuation: bigint;
     public symbol: string;
+    public initialValuation: bigint;
     public initialTokenNumber: bigint;
 
     constructor(
@@ -12,7 +12,7 @@ export default class Project {
         description?: string,
         symbol?: string,
         initialValuation?: bigint,
-        initialTokenNumber?: bigint
+        initialTokenNumber?: bigint,
     ) {
         this.owner = owner ?? '';
         this.title = title ?? '';
