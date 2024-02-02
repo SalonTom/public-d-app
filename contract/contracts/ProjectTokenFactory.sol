@@ -34,6 +34,7 @@ contract ProjectTokenFactory {
     struct ProjectStruct {
         address owner;
         string title;
+        string symbol;
         string description;
         uint256 initialValuation; // Initial valuation in ETH
         uint256 initialTokenNumber; // Initial number of tokens for sale
@@ -65,6 +66,7 @@ contract ProjectTokenFactory {
         ProjectStruct memory project = ProjectStruct(
             msg.sender,
             _title,
+            _symbol,
             _description,
             _initialValuation,
             _initialTokenNumber

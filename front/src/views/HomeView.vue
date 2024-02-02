@@ -31,7 +31,7 @@ import Public from '@/components/Public.vue';
 import router from '@/router';
 import { defineComponent } from 'vue';
 
-import MetamaskConnector from "@/utils/MetamaskConnector";
+import { MetamaskConnector } from "@/utils/MetamaskConnector";
 import { useAuthStore } from '@/stores/AuthStore';
 
 export default defineComponent({
@@ -41,19 +41,18 @@ export default defineComponent({
   methods: {
     async connectToWalletAsync() : Promise<void> {
       try {
-        const { provider, signer } = await MetamaskConnector.metamaskConnectorAsync();
+        const connection = await MetamaskConnector();
 
-        const authStore = useAuthStore();
-        authStore.init(signer, provider);
-        
-        authStore.provider = provider;
-        authStore.signer = signer;
+        if (connection) {
+          const authStore = useAuthStore();
+          await authStore.init(connection.account);
 
-        // Check if the user is registered or not
-        if (authStore.userIsRegistered) {
-          router.push({ name : 'Feed' });
-        } else {
-          router.push({ name : 'Register' })
+          // Check if the user is registered or not
+          if (authStore.userStatus === 2) {
+            router.push({ name : 'Feed' });
+          } else {
+            router.push({ name : 'Register' })
+          }
         }
 
       } catch (error) {
