@@ -44,7 +44,6 @@ export default defineComponent({
         }
     },
     async mounted() {
-        // await ContractUtils.getContract().methods.createProject("45555", "66666666", "POLY", 12, 58).send({ from : useAuthStore().signer })
         const projects = await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[];
         this.projectsAndToken = projects;
     }

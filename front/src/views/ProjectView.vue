@@ -10,24 +10,25 @@
 
     <!-- Consult project info -->
     <div v-if="!!projectAndToken"
-        class="shadow main-background main-stroke"
         style="display: flex; 
                 flex-direction: column;
                 gap: calc(16px + var(--figma-ratio));
                 overflow-y: auto;
                 max-height: 90%;">
+
+        <div class="main-background main-stroke shadow">
             
             <!-- Project banner -->
             <div style="width:100%; height: 180px; position: relative; background-image: url('../../project_image.jpg'); background-size: contain; border-top-left-radius: 8px; border-top-right-radius: 8px">
             </div>
-
+    
             <div style="padding: calc(24px + var(--figma-ratio)) 12px calc(24px + var(--figma-ratio)) 24px;">
                 <div style="display: flex;
                         flex-direction: column;
                         gap: 12px;">
     
                     <div class="bold">
-                        {{ projectAndToken.project.title }}
+                        [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
                     </div>
                     <div style="max-height: calc(80px + var(--figma-ratio)); overflow: hidden; text-overflow: ellipsis;">
                         {{ projectAndToken.project.description }}
@@ -51,6 +52,14 @@
                                 {{ ConversionUtils.from(projectAndToken.project.initialTokenNumber) }} %
                             </div>
                         </div>
+                        <div style="flex-grow: 1;">
+                        <div class="bold">
+                            Available tokens
+                        </div>
+                        <div>
+                            {{ remainingTokens }} {{ projectAndToken.project.symbol }} 
+                        </div>
+                    </div>
                     </div>
                     <div style="display: flex;
                         align-items: center;
@@ -71,14 +80,36 @@
                             </div>
                         </div>
                         <div class="short" style="width: auto; white-space: nowrap;">
-                            {{  projectCompletion }}% completed
+                            {{ projectCompletion }}% completed
                         </div>
                     </div>
                 </div>
             </div>
+        </div>
+            
+        <div v-if="!userOwnProject">
+
+            <div style="display: flex; flex-direction: column; margin-top: 16px;">
+                <div style="font-weight: bold;">
+                    Investment
+                </div>
+                <div class="main-background main-stroke shadow" style="width: fit-content; padding: 12px 24px; margin-top: 12px; gap: 12px;">
+                    <div class="form-group" v-if="remainingTokens > 0">
+                        <label class="required" for="nbtoken">Number of token you want to buy</label>
+                        <div style="display: flex; gap: 8px;">
+                            <input type="number" name="nbtoken" v-model="nbTokenInvest">
+                            <div class="btn btn-primary" @click="investInProjectAsync">Buy {{ projectAndToken.project.symbol }}</div>
+                        </div>
+                    </div>
+                    <div v-else>
+                        This fundraising compaign is completed. Thanks to all the donators.
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
-    <!-- Page de créatio du projet -->
+    <!-- Page de création du projet -->
     <div v-else style="overflow-y: auto;
                 max-height: 90%;">
         <template v-if="!creationInProgress">
@@ -141,8 +172,6 @@
             </form>
 
         </template>
-
-
     </div>
     <!-- <div @click="create">
         Click here to create one
@@ -162,8 +191,9 @@ export default defineComponent({
     setup() {
 
         const projectAddress = useRoute().query['project_address'];
-        const userOwnProject = projectAddress === useAuthStore().signer;
+        
         const myProjectRoute = useRoute().name === 'My Project';
+        const userOwnProject = projectAddress === useAuthStore().signer || myProjectRoute;
 
         if (userOwnProject && !myProjectRoute) {
             router.replace({ name : 'My Project' })
@@ -173,10 +203,16 @@ export default defineComponent({
         const userHasProject = ref(false);
         const projectAndToken = ref<ProjectAndToken>();
 
+        const remainingTokens = ref(0);
+
         const creationInProgress = ref(false);
 
         const formErrors = ref<string[]>([]);
         const newProject = ref<Project>(new Project());
+
+        const nbTokenInvest = ref(0);
+
+        const mpListing = ref();
 
         return {
             projectAddress,
@@ -188,17 +224,24 @@ export default defineComponent({
             creationInProgress,
             newProject,
             formErrors,
+            remainingTokens,
+            nbTokenInvest,
+            mpListing,
             ConversionUtils
         }
     },
     async mounted() {
-        const remainingTokens = ConversionUtils.from(BigInt(17)*BigInt(10)**ConversionUtils._nbDecimal);
         const addressFilter = this.myProjectRoute ? useAuthStore().signer : this.projectAddress;
         const projectsAndTokens = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === addressFilter);
         
         if (!!projectsAndTokens.length) {
             this.projectAndToken = projectsAndTokens[0];
-            this.projectCompletion = Math.round((1 - remainingTokens / ConversionUtils.from(this.projectAndToken.project.initialTokenNumber)) * 100);
+
+            this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
+            console.log(this.mpListing);
+            this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
+
+            this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.projectAndToken.project.initialTokenNumber)) * 100);
             this.userHasProject = true;
         }
     },
@@ -220,12 +263,25 @@ export default defineComponent({
                 await ContractUtils.getContractMarket().methods.addTokens(this.projectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                 this.newProject = new Project();
             }
+        },
+
+        async investInProjectAsync() {
+
+            if (this.nbTokenInvest <= 0 || this.nbTokenInvest > this.remainingTokens) {
+                alert(`Cannot buy 0 token or more than ${this.remainingTokens}`);
+            } else {
+                const nbTokenToBuy = ConversionUtils.to(12);
+                await ContractUtils.getContractMarket().methods.purchaseTokens(this.projectAndToken!.token, nbTokenToBuy).send({ from : useAuthStore().signer, value: `${ConversionUtils.from(BigInt(this.mpListing.pricePerToken)*nbTokenToBuy)}` });
+                window.location.reload();
+            }
+
+            console.log(await ContractUtils.getContractToken(this.projectAndToken!.token).methods.balanceOf(useAuthStore().signer).call());
         }
     }
 })
 </script>
 
-<style>
+<style scoped>
 .form-group {
     display: flex;
     flex-direction: column;
@@ -237,10 +293,11 @@ export default defineComponent({
     font-weight: bold;
 }
 
+input,
 .form-group>input,
 .form-group>textarea {
     width: 100%;
-    height: 40px;
+    min-height: 40px;
     border-radius: 8px;
     border: solid 1px #27262A;
     background-color: #3A393E;

@@ -1,7 +1,7 @@
 export default class ConversionUtils {
     public static _nbDecimal : bigint = BigInt(18);
 
-    public static to(amount : number) : BigInt {
+    public static to(amount : number) : bigint {
         return BigInt(amount*10**Number(this._nbDecimal));
     }
 
