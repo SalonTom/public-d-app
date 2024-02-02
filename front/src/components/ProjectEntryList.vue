@@ -60,60 +60,25 @@
                 </div>
             </div>
             <div style="display: flex; align-items: center; gap: calc(16px + var(--figma-ratio)); margin-top: calc(16px + var(--figma-ratio));">
-                <div class="btn btn-primary" @click="">Invest in the project</div>
-                <div class="btn btn-txt" @click="">See project details</div>
+                <div class="btn btn-primary" @click="goToProjectPage">Invest in the project</div>
+                <div class="btn btn-txt" @click="goToProjectPage">See project details</div>
             </div>
         </div>
 
         <!-- Project banner -->
-        <div style="width: 34%; position: relative; background-image: url('./project_image.jpg'); background-size: cover; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
+        <div style="width: 34%; position: relative; background-image: url('../project_image.jpg'); background-size: cover; border-top-right-radius: 8px; border-bottom-right-radius: 8px;">
             <div style="position: absolute; inset: 0; background: linear-gradient(to right, rgba(29, 28, 32, 1), rgba(29, 28, 32, 0));">
 
             </div>
         </div>
 </template>
 <script lang="ts">
-import { Suspense, defineComponent, type PropType } from 'vue';
+import { defineComponent, type PropType } from 'vue';
 import ConversionUtils from '@/utils/ConversionUtils';
+import router from '@/router';
+import { useAuthStore } from '@/stores/AuthStore';
+import type ProjectAndToken from '@/models/ProjectAndToken';
 
-class Project {
-    public owner: string;
-    public title: string;
-    public description: string;
-    public initialValuation: bigint;
-    public fiatCurrency: string;
-    public initialTokenNumber: bigint;
-
-    constructor(
-        owner: string,
-        title: string,
-        description: string,
-        initialValuation: bigint,
-        fiatCurrency: string,
-        initialTokenNumber: bigint
-    ) {
-        this.owner = owner;
-        this.title = title;
-        this.description = description;
-        this.initialValuation = initialValuation;
-        this.fiatCurrency = fiatCurrency;
-        this.initialTokenNumber = initialTokenNumber;
-    }
-}
-
-class ProjectAndToken {
-    public project : Project;
-    public token : string;
-
-    constructor(
-        project: Project,
-        token: string
-    ) {
-        this.project = project;
-        this.token = token;
-    }
-
-}
 
 export default defineComponent({
     props: {
@@ -134,6 +99,14 @@ export default defineComponent({
         return {
             projectCompletion,
             ConversionUtils
+        }
+    },
+    methods: {
+        goToProjectPage() {
+            router.replace({ 
+                name : 'View Project', 
+                query: { project_address : this.projectAndToken.project.owner }
+            });
         }
     }
 })

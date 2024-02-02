@@ -31,13 +31,18 @@ const router = createRouter({
       component: CommonView,
       children : [
         {
-          path: '/feed',
+          path: 'feed',
           name: 'Feed',
           component: FeedView
         },
         {
-          path: '/project',
+          path: 'project',
           name: 'My Project',
+          component: ProjectView,
+        },
+        {
+          path: 'view-project',
+          name: 'View Project',
           component: ProjectView
         }
       ],

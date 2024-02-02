@@ -7,11 +7,11 @@
                 flex-direction: column;
                 gap: calc(12px + var(--figma-ratio));
                 margin-top: calc(32px + var(--figma-ratio));">
-                <RouterLink :to="{ name : 'Feed' }">
+                <RouterLink :to="{ name : 'Feed' }" replace>
                     <img src="../assets/svg/list.svg">
                     Feed
                 </RouterLink>
-                <RouterLink :to="{ name : 'My Project' }">
+                <RouterLink :to="{ name : 'My Project' }" replace>
                     <img src="../assets/svg/donut.svg">
                     My Project
                 </RouterLink>

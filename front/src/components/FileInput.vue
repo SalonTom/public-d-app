@@ -19,8 +19,12 @@
     </div>
 </template>
 <script lang="ts">  
+import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
+import ContractUtils from '@/utils/ContractUtils';
+import { timeLog } from 'console';
 import { defineComponent } from 'vue';
+import { Contract } from 'web3';
 
 export default defineComponent({
     setup() {
@@ -45,6 +49,16 @@ export default defineComponent({
                     });
 
                     this.authStore.userStatus = 1;
+
+                    const interval = setInterval(async () => {
+                        const userIsVerified = await ContractUtils.getContract().methods.whitelist(this.authStore.signer).call();
+
+                        if (Number(userIsVerified) === 2) {
+                            this.authStore.userStatus = 2;
+                            router.push({ name : 'Feed' });
+                            clearInterval(interval);
+                        }
+                    }, 1000)
                 }
             } catch(error) {
                 alert(error);
