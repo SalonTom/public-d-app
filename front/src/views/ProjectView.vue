@@ -270,7 +270,7 @@ export default defineComponent({
             if (this.nbTokenInvest <= 0 || this.nbTokenInvest > this.remainingTokens) {
                 alert(`Cannot buy 0 token or more than ${this.remainingTokens}`);
             } else {
-                const nbTokenToBuy = ConversionUtils.to(12);
+                const nbTokenToBuy = ConversionUtils.to(this.nbTokenInvest);
                 await ContractUtils.getContractMarket().methods.purchaseTokens(this.projectAndToken!.token, nbTokenToBuy).send({ from : useAuthStore().signer, value: `${ConversionUtils.from(BigInt(this.mpListing.pricePerToken)*nbTokenToBuy)}` });
                 window.location.reload();
             }
