@@ -42,6 +42,7 @@ import router from '@/router';
 import Public from '@/components/Public.vue';
 
 import { useAuthStore } from '@/stores/AuthStore';
+import { useToastStore } from '@/stores/ToastStore';
 
 export default defineComponent({
     components : {
@@ -58,6 +59,7 @@ export default defineComponent({
         logout() {
             this.authStore.reset();
             router.replace({ name : 'Home' });
+            useToastStore().addToast('You have been disconnected', 'neutral');
         }
     }
 })

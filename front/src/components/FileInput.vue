@@ -19,12 +19,13 @@
     </div>
 </template>
 <script lang="ts">  
-import router from '@/router';
-import { useAuthStore } from '@/stores/AuthStore';
-import ContractUtils from '@/utils/ContractUtils';
-import { timeLog } from 'console';
 import { defineComponent } from 'vue';
-import { Contract } from 'web3';
+import router from '@/router';
+
+import { useAuthStore } from '@/stores/AuthStore';
+
+import ContractUtils from '@/utils/ContractUtils';
+import { useToastStore } from '@/stores/ToastStore';
 
 export default defineComponent({
     setup() {
@@ -55,6 +56,7 @@ export default defineComponent({
 
                         if (Number(userIsVerified) === 2) {
                             this.authStore.userStatus = 2;
+                            useToastStore().addToast('Registration completed ! Welcome to the Public', 'positive');
                             router.push({ name : 'Feed' });
                             clearInterval(interval);
                         }

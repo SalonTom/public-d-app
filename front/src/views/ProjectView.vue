@@ -8,176 +8,192 @@
         </div>
     </div>
 
-    <!-- Consult project info -->
-    <div v-if="!!projectAndToken"
-        style="display: flex; 
-                flex-direction: column;
-                gap: calc(16px + var(--figma-ratio));
-                overflow-y: auto;
-                max-height: 90%;">
+    <Transition>
 
-        <div class="main-background main-stroke shadow">
-            
-            <!-- Project banner -->
-            <div style="width:100%; height: 180px; position: relative; background-image: url('../../project_image.jpg'); background-size: contain; border-top-left-radius: 8px; border-top-right-radius: 8px">
-            </div>
-    
-            <div style="padding: calc(24px + var(--figma-ratio)) 12px calc(24px + var(--figma-ratio)) 24px;">
-                <div style="display: flex;
+        <div v-if="initialized" style="overflow-y: auto; max-height: 90%;">
+            <!-- Consult project info -->
+            <div v-if="!!projectAndToken"
+                class="appear"
+                style="display: flex; 
                         flex-direction: column;
-                        gap: 12px;">
+                        gap: calc(16px + var(--figma-ratio));
+                        overflow-y: auto;
+                        max-height: 90%;">
     
-                    <div style="display: flex; justify-content: space-between; width: 100%;">
-                        <div class="bold">
-                            [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
-                        </div>
-                        <div class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
-                            Balance : {{ ConversionUtils.from(numberOfTokenOwned) }} {{ projectAndToken.project.symbol }}
-                        </div>
+                <div class="main-background main-stroke shadow">
+                    
+                    <!-- Project banner -->
+                    <div style="width:100%; height: 180px; position: relative; background-image: url('../../project_image.jpg'); background-size: contain; border-top-left-radius: 8px; border-top-right-radius: 8px">
                     </div>
-                </div>
-                <div class="shadow main-background main-stroke" style="padding: 12px 8px;margin-top: 16px;">
-                    <div style="display: flex; gap: 4px; justify-content: space-between; text-align: center; ">
-                        <div style="flex-grow: 1;">
-                            <div class="bold">
-                                Fundraising target
-                            </div>
-                            <div>
-                                {{ ConversionUtils.from(projectAndToken.project.initialValuation) }} ETH
-                            </div>
-                        </div>
-                        <div style="flex-grow: 1;">
-                            <div class="bold">
-                                Capital Percentage
-                            </div>
-                            <div>
-                                {{ ConversionUtils.from(projectAndToken.project.initialTokenNumber) }} %
-                            </div>
-                        </div>
-                        <div style="flex-grow: 1;">
-                        <div class="bold">
-                            Available tokens
-                        </div>
-                        <div>
-                            {{ remainingTokens }} {{ projectAndToken.project.symbol }} 
-                        </div>
-                    </div>
-                    </div>
-                    <div style="display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        gap: 12px;
-                        margin-top: calc(16px + var(--figma-ratio));
-                        padding: 4px;">
-    
-                        <div 
-                            class="main-stroke"
-                            style="width: 100%; height: calc(8px + var(--figma-ratio));">
-    
-                            <div style="background-color: #5EFF5A;
-                                    height: calc(8px + var(--figma-ratio));
-                                    border-radius: 8px;"
-                            :style="{ width : projectCompletion + '%'}"
-                                >
-                            </div>
-                        </div>
-                        <div class="short" style="width: auto; white-space: nowrap;">
-                            {{ projectCompletion }}% completed
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
             
-        <div v-if="!userOwnProject">
-
-            <div style="display: flex; flex-direction: column; margin-top: 16px;">
-                <div style="font-weight: bold;">
-                    Investment
-                </div>
-                <div class="main-background main-stroke shadow" style="width: fit-content; padding: 12px 24px; margin-top: 12px; gap: 12px;">
-                    <div class="form-group" v-if="remainingTokens > 0">
-                        <label class="required" for="nbtoken">Number of token you want to buy</label>
-                        <div style="display: flex; gap: 8px;">
-                            <input type="number" name="nbtoken" v-model="nbTokenInvest">
-                            <div class="btn btn-primary" @click="investInProjectAsync">Buy {{ projectAndToken.project.symbol }}</div>
+                    <div style="padding: calc(24px + var(--figma-ratio)) 12px calc(24px + var(--figma-ratio)) 24px;">
+                        <div style="display: flex;
+                                flex-direction: column;
+                                gap: 12px;">
+            
+                            <div style="display: flex; justify-content: space-between; width: 100%;">
+                                <div class="bold">
+                                    [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
+                                </div>
+                                <div class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
+                                    Balance : {{ ConversionUtils.from(numberOfTokenOwned) }} {{ projectAndToken.project.symbol }}
+                                </div>
+                            </div>
+                        </div>
+                        <div class="shadow main-background main-stroke" style="padding: 12px 8px;margin-top: 16px;">
+                            <div style="display: flex; gap: 4px; justify-content: space-between; text-align: center; ">
+                                <div style="flex-grow: 1;">
+                                    <div class="bold">
+                                        Fundraising target
+                                    </div>
+                                    <div>
+                                        {{ ConversionUtils.from(projectAndToken.project.initialValuation) }} ETH
+                                    </div>
+                                </div>
+                                <div style="flex-grow: 1;">
+                                    <div class="bold">
+                                        Capital Percentage
+                                    </div>
+                                    <div>
+                                        {{ ConversionUtils.from(projectAndToken.project.initialTokenNumber) }} %
+                                    </div>
+                                </div>
+                                <div style="flex-grow: 1;">
+                                <div class="bold">
+                                    Available tokens
+                                </div>
+                                <div>
+                                    {{ remainingTokens }} {{ projectAndToken.project.symbol }} 
+                                </div>
+                            </div>
+                            </div>
+                            <div style="display: flex;
+                                align-items: center;
+                                justify-content: center;
+                                gap: 12px;
+                                margin-top: calc(16px + var(--figma-ratio));
+                                padding: 4px;">
+            
+                                <div 
+                                    class="main-stroke"
+                                    style="width: 100%; height: calc(8px + var(--figma-ratio));">
+            
+                                    <div style="background-color: #5EFF5A;
+                                            height: calc(8px + var(--figma-ratio));
+                                            border-radius: 8px;"
+                                    :style="{ width : projectCompletion + '%'}"
+                                        >
+                                    </div>
+                                </div>
+                                <div class="short" style="width: auto; white-space: nowrap;">
+                                    {{ projectCompletion }}% completed
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div v-else>
-                        This fundraising compaign is completed. Thanks to all the donators.
+                </div>
+                    
+                <div v-if="!userOwnProject">
+    
+                    <div style="display: flex; flex-direction: column; margin-top: 16px;">
+                        <div style="font-weight: bold;">
+                            Investment
+                        </div>
+                        <div class="main-background main-stroke shadow" style="width: fit-content; padding: 12px 24px; margin-top: 12px; gap: 12px;">
+                            <div class="form-group" v-if="remainingTokens > 0">
+                                <label class="required" for="nbtoken">Number of token you want to buy</label>
+                                <div style="display: flex; gap: 8px;">
+                                    <input type="number" name="nbtoken" v-model="nbTokenInvest">
+                                    <div class="btn btn-primary" @click="investInProjectAsync">Buy {{ projectAndToken.project.symbol }}</div>
+                                </div>
+                            </div>
+                            <div v-else>
+                                This fundraising compaign is completed. Thanks to all the donators.
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-
-    <!-- Page de création du projet -->
-    <div v-else style="overflow-y: auto;
-                max-height: 90%;">
-        <template v-if="!creationInProgress">
-            You haven't created your project yet. Let's do it !
-            <div class="btn btn-primary" style="margin-top: 12px;" @click="creationInProgress = true">Create your project</div>
-        </template>
-        <template v-else>
-            <form @submit.prevent="createProjectAsync">
-                <div style="padding: 32px;">
-                    <div style="display: flex;">
-                        <div style="font-weight: bold; flex-grow: 1; max-width: 150px;">
-                            General
-                        </div>
-                        <div class="main-background main-stroke shadow" style="max-width: 450px; width: 100%; padding: 12px 24px;">
-                            <div class="form-group">
-                                <label class="required" for="title">Title</label>
-                                <input type="text" name="title" v-model="newProject.title">
-                            </div>
-                
-                            <div class="form-group">
-                                <label class="required" for="description">Description</label>
-                                <textarea name="description" rows="5" v-model="newProject.description"></textarea>
-                            </div>
-                
-                            <div class="form-group">
-                                <label class="required" for="symbol">Symbol</label>
-                                <input type="text" name="symbol" v-model="newProject.symbol" style="text-transform:uppercase">
-                            </div>
-                        </div>
-                    </div>
-                </div>
     
-                <div style="padding: 32px;">
-        
-                    <div style="display: flex;">
-                        <div style="font-weight: bold; flex-grow: 1; max-width: 150px;">
-                            Valuation
-                        </div>
-                        <div class="main-background main-stroke shadow" style="max-width: 450px; width: 100%;  padding: 12px 24px;">
-                            <div class="form-group">
-                                <label class="required" for="valuation">Company valuation (in ETH)</label>
-                                <input class="required" type="number" min="0" name="valuation" v-model="newProject.initialValuation">
+            <!-- Page de création du projet -->
+            <div v-else>
+                <div v-if="!creationInProgress" class="appear">
+                    You haven't created your project yet. Let's do it !
+                    <div class="btn btn-primary" style="margin-top: 12px;" @click="creationInProgress = true">Create your project</div>
+                </div>
+                <div v-else>
+                    <form @submit.prevent="createProjectAsync">
+                        <div style="padding: 32px;">
+                            <div style="display: flex;">
+                                <div style="font-weight: bold; flex-grow: 1; max-width: 150px;">
+                                    General
+                                </div>
+                                <div class="main-background main-stroke shadow" style="max-width: 450px; width: 100%; padding: 12px 24px;">
+                                    <div class="form-group">
+                                        <label class="required" for="title">Title</label>
+                                        <input type="text" name="title" v-model="newProject.title">
+                                    </div>
+                        
+                                    <div class="form-group">
+                                        <label class="required" for="description">Description</label>
+                                        <textarea name="description" rows="5" v-model="newProject.description"></textarea>
+                                    </div>
+                        
+                                    <div class="form-group">
+                                        <label class="required" for="symbol">Symbol</label>
+                                        <input type="text" name="symbol" v-model="newProject.symbol" style="text-transform:uppercase">
+                                    </div>
+                                </div>
                             </div>
+                        </div>
+            
+                        <div style="padding: 32px;">
                 
-                            <div class="form-group">
-                                <label class="required" for="tokenNumber">Number of part listed</label>
-                                <input type="number" name="tokenNumber" min="1" max="100" v-model="newProject.initialTokenNumber">
+                            <div style="display: flex;">
+                                <div style="font-weight: bold; flex-grow: 1; max-width: 150px;">
+                                    Valuation
+                                </div>
+                                <div class="main-background main-stroke shadow" style="max-width: 450px; width: 100%;  padding: 12px 24px;">
+                                    <div class="form-group">
+                                        <label class="required" for="valuation">Company valuation (in ETH)</label>
+                                        <input class="required" type="number" min="0" name="valuation" v-model="newProject.initialValuation">
+                                    </div>
+                        
+                                    <div class="form-group">
+                                        <label class="required" for="tokenNumber">Number of part listed</label>
+                                        <input type="number" name="tokenNumber" min="1" max="100" v-model="newProject.initialTokenNumber">
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                    </div>
+                        <ul v-if="formErrors.length">
+                            <li v-for="error in formErrors" :key="error" style="color: red">
+                                Field <span style="font-weight: bold;">{{ error }}</span> is missing.
+                            </li>
+                        </ul>
+                        <div style="width: 100%; max-width: 625px; display: flex; justify-content: end;">
+                            <button class="btn btn-primary" type="submit" style="color:#FAFAFA; margin-top: 12px;" @click="creationInProgress = true">Create your project</button>
+                        </div>
+                    </form>
                 </div>
-                <ul v-if="formErrors.length">
-                    <li v-for="error in formErrors" :key="error" style="color: red">
-                        Field <span style="font-weight: bold;">{{ error }}</span> is missing.
-                    </li>
-                </ul>
-                <div style="width: 100%; max-width: 625px; display: flex; justify-content: end;">
-                    <button class="btn btn-primary" type="submit" style="color:#FAFAFA; margin-top: 12px;" @click="creationInProgress = true">Create your project</button>
-                </div>
-            </form>
+            </div>
 
-        </template>
-    </div>
-    <!-- <div @click="create">
-        Click here to create one
-    </div> -->
+            <!-- Loading screens when project creation -->
+            <div v-if="creationTransactionStep > 0" style="position: absolute; z-index: 1; top:0; left: 0; bottom: 0; right: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; background-color: rgba(0, 0, 0, 0.2); backdrop-filter: blur(4px);">
+                <div style="font-weight: bold; margin-bottom: 24px">{{ creationTransactionStep }} / 3</div>
+                
+                <span v-if="creationTransactionStep == 1">Confirm the creation transaction</span>
+                <span v-if="creationTransactionStep == 2">Give the marketplace the right to handle your tokens for you</span>
+                <span v-if="creationTransactionStep == 3">Confirm the listing of your tokens</span>
+                <img src="../assets/svg/hourglass.svg" style="animation: rotate 3.5s infinite; margin-top: 24px;">
+            </div>
+    
+        </div>
+        <div v-else>
+            <LazyLoading></LazyLoading>
+        </div>
+    </Transition>
+
 </template>
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
@@ -192,7 +208,13 @@ import ConversionUtils from '@/utils/ConversionUtils';
 import Project from '@/models/Project';
 import ProjectAndToken from "@/models/ProjectAndToken";
 
+import LazyLoading from '@/components/LazyLoading.vue';
+import { useToastStore } from '@/stores/ToastStore';
+
 export default defineComponent({
+    components: {
+        LazyLoading
+    },
     setup() {
 
         const projectAddress = useRoute().query['project_address'];
@@ -221,6 +243,12 @@ export default defineComponent({
 
         const mpListing = ref();
 
+        const initialized = ref(false);
+
+        const toastStore = useToastStore();
+
+        const creationTransactionStep = ref(0);
+
         return {
             projectAddress,
             userOwnProject,
@@ -235,6 +263,9 @@ export default defineComponent({
             nbTokenInvest,
             mpListing,
             numberOfTokenOwned,
+            initialized,
+            toastStore,
+            creationTransactionStep,
             ConversionUtils
         }
     },
@@ -253,7 +284,9 @@ export default defineComponent({
             this.userHasProject = true;
 
             this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
+
         }
+        this.initialized = true;
     },
     methods: {
         async createProjectAsync() {
@@ -266,31 +299,46 @@ export default defineComponent({
             });
 
             if (!this.formErrors.length) {
-                await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol.toUpperCase(), ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
-                
-                const newProjectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
-                await ContractUtils.getContractToken(newProjectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
-                await ContractUtils.getContractMarket().methods.addTokens(newProjectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
-                this.newProject = new Project();
-                this.projectAndToken = newProjectAndToken;
 
-                this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
-                this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
-                this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
+                try {
+                    this.creationTransactionStep = 1;
+                    await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol.toUpperCase(), ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                    
+                    this.creationTransactionStep = 2;
+                    const newProjectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
+                    await ContractUtils.getContractToken(newProjectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                    
+                    this.creationTransactionStep = 3;
+                    await ContractUtils.getContractMarket().methods.addTokens(newProjectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
+                    this.newProject = new Project();
+                    this.projectAndToken = newProjectAndToken;
+    
+                    this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
+                    this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
+                    this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
+    
+                    useToastStore().addToast('Project succefully listed !', 'positive');
+
+                } catch(error) {
+                    this.creationTransactionStep = 0;
+                } finally {
+                    this.creationTransactionStep = 0;
+                }
             }
         },
 
         async investInProjectAsync() {
 
             if (this.nbTokenInvest <= 0 || this.nbTokenInvest > this.remainingTokens) {
-                alert(`Cannot buy 0 token or more than ${this.remainingTokens}`);
+                this.toastStore.addToast(`Cannot buy 0 token or more than ${this.remainingTokens}`, "negative");
             } else {
                 const nbTokenToBuy = ConversionUtils.to(this.nbTokenInvest);
                 await ContractUtils.getContractMarket().methods.purchaseTokens(this.projectAndToken!.token, nbTokenToBuy).send({ from : useAuthStore().signer, value: `${ConversionUtils.from(BigInt(this.mpListing.pricePerToken)*nbTokenToBuy)}` });
                 window.location.reload();
+                this.toastStore.addToast(`You successfully bought ${ConversionUtils.from(nbTokenToBuy)} ${this.projectAndToken?.project.symbol}`, "positive");
             }
 
-            console.log(await ContractUtils.getContractToken(this.projectAndToken!.token).methods.balanceOf(useAuthStore().signer).call());
+
         }
     }
 })
