@@ -31,7 +31,7 @@
                         <div class="bold">
                             [{{ projectAndToken.project.symbol }}] {{ projectAndToken.project.title }}
                         </div>
-                        <div v-if="!!numberOfTokenOwned || true" class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
+                        <div class="short" style="background-color: #8a30c2; padding: 4px 8px; border-radius: 4px;">
                             Balance : {{ ConversionUtils.from(numberOfTokenOwned) }} {{ projectAndToken.project.symbol }}
                         </div>
                     </div>
@@ -180,14 +180,17 @@
     </div> -->
 </template>
 <script lang="ts">
-import ContractUtils from '@/utils/ContractUtils';
 import { defineComponent, ref } from 'vue';
-import ProjectAndToken from "@/models/ProjectAndToken";
 import { useRoute } from 'vue-router';
-import { useAuthStore } from '@/stores/AuthStore';
 import router from '@/router';
+
+import { useAuthStore } from '@/stores/AuthStore';
+
+import ContractUtils from '@/utils/ContractUtils';
 import ConversionUtils from '@/utils/ConversionUtils';
+
 import Project from '@/models/Project';
+import ProjectAndToken from "@/models/ProjectAndToken";
 
 export default defineComponent({
     setup() {

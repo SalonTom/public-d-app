@@ -37,10 +37,11 @@
 </template>
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Public from '@/components/Public.vue';
-import { useAuthStore } from '@/stores/AuthStore';
 import router from '@/router';
 
+import Public from '@/components/Public.vue';
+
+import { useAuthStore } from '@/stores/AuthStore';
 
 export default defineComponent({
     components : {
