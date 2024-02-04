@@ -1,6 +1,10 @@
 # Public - A web3 secure investment platform
 Groupe : SALON Tom, FOURNIEZ Théo, GILLOT Quentin
 
+## Lien vers les différentes ressources
+
+* [Vidéo de démonstration](https://drive.google.com/file/d/1IOIS0xdT2hrUI0VBE3dRWXQVFubkjSxl/view?usp=drive_link)
+
 ## Explication du Projet
 Nous avons développé une application de crowdfunding décentralisée permettant aux utilisateurs majeurs (qui passent la vérification d'identité) de faire financer leur projet en vendant des parts de leurs entreprises sous la forme de token.
 L'application contient donc 2 principales fonctionnalités : 
