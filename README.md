@@ -1,8 +1,8 @@
-# Public-dApp
-SALON Tom, FOURNIEZ Théo, GILLOT Quentin
+# Public - A web3 secure investment platform
+Groupe : SALON Tom, FOURNIEZ Théo, GILLOT Quentin
 
 ## Explication du Projet
-Nous avons développé une application de crowdfunding décentralisée permettant aux utilisateurs majeurs (vérification d'identité) de faire financer leur projet en vendant des parts de leurs entreprises sous la forme de token.
+Nous avons développé une application de crowdfunding décentralisée permettant aux utilisateurs majeurs (qui passent la vérification d'identité) de faire financer leur projet en vendant des parts de leurs entreprises sous la forme de token.
 L'application contient donc 2 principales fonctionnalités : 
 - La création d'un projet ainsi que de son token
 - La possibilité d'investir dans les projets d'autres créateurs via l'achat de token
@@ -25,9 +25,9 @@ Investissement sur un projet :
 
 ### Smart Contract
 Théo s'est occupé de l'ensemble de la conception des smart contracts : 
-- ProjectToken : ce smart contract héritant d'ERC20 permet la création (au nombre de 100) et le mint de token spécifié par l'utilisateur lors de la création de son projet sur la plateforme.
-- ProjectTokenFactory : il gère l'ensemble de la logique de l'application, ce smart contract est appelé pour la création de projet, la récupération de l'ensemble des projets et est également appelé par l'api pour whitelister les différents utilisateurs en fonction du retour de celle-ci.
-- ProjectTokenMarket : il permet l'ajout de token sur le marché grâce au mécanisme d'allowance ainsi que le transfert de token de compte en compte grâce au mécanisme d'approval.
+- ProjectToken : ce smart contract héritant d'ERC20 permet le mint d'un token qui représente les parts de l'entreprise. Le montant total de tokens existant est toujours de 100 * 10¹⁸ pour représenter 100% des parts. 
+- ProjectTokenFactory : ce smart contract est utilisé pour la création de projet et du token y étant lié. De plus il est utilisé pour lister l'ensemble des projets.Il est finalement appelé par l'api de vérification d'identité pour whitelister les différents utilisateurs en fonction de l'âge de ceux-ci.
+- ProjectTokenMarket : il permet l'ajout de token sur le marché. Afin de pouvoir lister un token sur le marché, l'utilisateur doit d'abord autoriser ce contrat à dépenser le bon nombre de ProjectToken en son nom (grâce au mécanisme ERC20 d'[allowance](https://docs.openzeppelin.com/contracts/5.x/api/token/erc20#IERC20-allowance-address-address-)).Le transfert de token de compte en compte y est ensuite effectué lors de la vente avec la fonction transferFrom.
 
 ### Serveur IA de reconnaissance de pièce d'identité
 Quentin s'est occupé de la conception du serveur python permettant la validation de majorité des utilisateurs:
