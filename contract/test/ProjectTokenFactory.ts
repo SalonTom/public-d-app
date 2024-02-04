@@ -1,12 +1,9 @@
 import {
-  time,
   loadFixture,
 } from "@nomicfoundation/hardhat-toolbox/network-helpers";
-import { anyValue } from "@nomicfoundation/hardhat-chai-matchers/withArgs";
 import { expect } from "chai";
 import { ethers } from "hardhat";
 import { fromBlockchainFloat, toBlockchainFloat} from "./utils";
-import { ProjectTokenFactory } from "../typechain-types";
 
 enum WhitelistStatus{
   NotApplied,
@@ -15,15 +12,11 @@ enum WhitelistStatus{
 }
 
 describe("ProjectTokenFactory", function () {
-  // We define a fixture to reuse the same setup in every test.
-  // We use loadFixture to run this setup once, snapshot that state,
-  // and reset Hardhat Network to that snapshot in every test.
   async function deployFixture() {
-    // Contracts are deployed using the first signer/account by default
     const [owner, otherAccount, apiSigner, otherAccount2 ] = await ethers.getSigners();
 
     const ProjectTokenFactory = await ethers.getContractFactory("ProjectTokenFactory");
-    const projectTokenFactory = await ProjectTokenFactory.deploy(apiSigner);
+    const projectTokenFactory = await ProjectTokenFactory.deploy(apiSigner); // the apiSigner is the signer that will be authorized to whitelist users using the whitelistUser function
 
     const ProjectTokenMarket = await ethers.getContractFactory("ProjectTokenMarket");
     const projectTokenMarket = await ProjectTokenMarket.deploy();
@@ -32,19 +25,25 @@ describe("ProjectTokenFactory", function () {
   }
 
 
-  describe("Deployment", function () {
+  describe("Whitelist", function () {
     it("Whitelist should be empty", async function () {
       const { projectTokenFactory, owner } = await loadFixture(deployFixture);
       expect(await projectTokenFactory.whitelist(owner)).to.equal(0n);
     });
     it("Should not be able to whitelist", async function () {
       const { projectTokenFactory, otherAccount } = await loadFixture(deployFixture);
-      await expect(projectTokenFactory.whitelistUser(otherAccount, WhitelistStatus.Approved)).to.be.revertedWith('Only API can call this function');
+      await expect(projectTokenFactory.connect(otherAccount).whitelistUser(otherAccount, WhitelistStatus.Approved)).to.be.revertedWith('Only API can call this function');
     });
     it("Should be able to whitelist", async function () {
       const { projectTokenFactory, otherAccount, apiSigner } = await loadFixture(deployFixture);
       await expect(await projectTokenFactory.connect(apiSigner).whitelistUser(otherAccount, WhitelistStatus.Approved)).to.emit(projectTokenFactory, "UserWhitelistStatus");
       expect(await projectTokenFactory.whitelist(otherAccount)).to.equal(WhitelistStatus.Approved);
+    });
+    it("Should be able to check if a user is whitelisted", async function () {
+      const { projectTokenFactory, otherAccount, otherAccount2, apiSigner } = await loadFixture(deployFixture);
+      await projectTokenFactory.connect(apiSigner).whitelistUser(otherAccount, WhitelistStatus.Approved);
+      expect(await projectTokenFactory.isWhitelisted(otherAccount)).to.equal(true);
+      expect(await projectTokenFactory.isWhitelisted(otherAccount2)).to.equal(false);
     });
   });
 
@@ -56,20 +55,20 @@ describe("ProjectTokenFactory", function () {
       await expect(projectTokenFactory.connect(otherAccount).createProject("title", "desc", "ABC", VALID_INITIAL_VALUATION, toBlockchainFloat(20))).to.be.revertedWith('User is not whitelisted');
   });
   // test for when user is whitelisted but you try to enter a invalid _initialTokenNumber (supposed to be between 0.1 and 100)
-  it("Should check the token initial supply (between 0 and 100)", async function () {
+  it("The token initial supply should not be outside the 0 and 100 range", async function () {
     const { projectTokenFactory, otherAccount, apiSigner } = await loadFixture(deployFixture);
     await projectTokenFactory.connect(apiSigner).whitelistUser(otherAccount, WhitelistStatus.Approved);
     await expect(projectTokenFactory.connect(otherAccount).createProject("title", "desc", "ABC", VALID_INITIAL_VALUATION, toBlockchainFloat(0))).to.be.revertedWith('Initial token number should be greater than 0 and less than 100*10^18');
     await expect(projectTokenFactory.connect(otherAccount).createProject("title", "desc", "ABC", VALID_INITIAL_VALUATION, toBlockchainFloat(100.1))).to.be.revertedWith('Initial token number should be greater than 0 and less than 100*10^18');
   });
   // test for when user is whitelisted but you try to enter a invalid _initialPrice (supposed to be greater than 0)
-  it("Should check the token initial price (greater than 0)", async function () {
+  it("The token initial valuation should not be less or equal to 0", async function () {
     const { projectTokenFactory, otherAccount, apiSigner } = await loadFixture(deployFixture);
     await projectTokenFactory.connect(apiSigner).whitelistUser(otherAccount, WhitelistStatus.Approved);
     await expect(projectTokenFactory.connect(otherAccount).createProject("title", "desc", "ABC", toBlockchainFloat(0), VALID_INITIAL_TOKEN_NUMBER)).to.be.revertedWith('Initial valuation should be greater than 0');
   });
   // test for when user is whitelisted and you try to create a project with valid parameters
-  it("Should create a project", async function () {
+  it("Should create a project and its token", async function () {
     const { projectTokenFactory, otherAccount, apiSigner } = await loadFixture(deployFixture);
     await projectTokenFactory.connect(apiSigner).whitelistUser(otherAccount, WhitelistStatus.Approved);
     // Check if the event is emitted
