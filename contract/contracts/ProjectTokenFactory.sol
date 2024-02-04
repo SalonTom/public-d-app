@@ -29,7 +29,7 @@ contract ProjectTokenFactory {
 
     /// @dev Event to signal changes in user whitelist status.
     event UserWhitelistStatus(WhitelistStatus s);
-
+    event ProjectCreated(ProjectAndToken p_t);
     /// @dev Struct to represent project details.
     struct ProjectStruct {
         address owner;
@@ -62,6 +62,11 @@ contract ProjectTokenFactory {
         uint256 _initialValuation,
         uint256 _initialTokenNumber
     ) public userWhitelisted(msg.sender) returns (ProjectAndToken memory p_t) {
+        require(bytes(_title).length > 0 , "Title should not be empty");
+        require(bytes(_description).length > 0 , "Description should not be empty");
+        require(bytes(_symbol).length > 0 , "Symbol should not be empty");
+        require(_initialValuation > 0, "Initial valuation should be greater than 0");
+        require(_initialTokenNumber > 0 && _initialTokenNumber <= 100*(10**18), "Initial token number should be greater than 0 and less than 100*10^18");
         ProjectStruct memory project = ProjectStruct(
             msg.sender,
             _title,
@@ -72,7 +77,7 @@ contract ProjectTokenFactory {
         ProjectToken token = new ProjectToken(msg.sender, _title, _symbol);
         p_t = ProjectAndToken(project, token);
         projectsAndTokens.push(p_t);
-        return p_t;
+        emit ProjectCreated(p_t);
     }
 
     /// @dev Function to check if a user is whitelisted.

@@ -25,11 +25,14 @@ contract ProjectTokenMarket {
     function addTokens(address token, uint256 amount, uint256 pricePerToken) public payable {
         require(amount > 0, "Amount should be greater than 0");
         require(pricePerToken > 0, "Price per token should be greater than 0");
-        
+
         // Ensure the sender is the project owner.
         ProjectToken _token = ProjectToken(token);
         require(_token.projectOwner() == msg.sender, "You should be the project owner to sell a token");
-
+        // Ensure the sender has the required balance and allowance.
+        require(_token.balanceOf(msg.sender) >= amount, "Insufficient balance to sell, you don't own that many tokens");
+        require(_token.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance to sell, please call approve() first");
+        
         // Set the listing details for the token.
         listings[_token] = Listing(msg.sender, amount, pricePerToken);
     }
@@ -46,7 +49,7 @@ contract ProjectTokenMarket {
         uint256 totalPayment = (amount * listings[_token].pricePerToken) / (1*10**18);
 
         // Check if the sent value is sufficient.
-        require(msg.value >= totalPayment, string(abi.encodePacked("Insufficient payment. Required : ", Strings.toString(totalPayment))));
+        require(msg.value >= totalPayment, string(abi.encodePacked("Insufficient payment. Required : ", Strings.toString(totalPayment), " Sent : ", Strings.toString(msg.value))));
 
         // Ensure the buyer is not the project owner.
         address owner = _token.projectOwner();
