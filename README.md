@@ -15,12 +15,22 @@ Tom s'est occupé de la partie frontend en designant l'ensemble des maquettes au
 Il s'est ensuite occupé de construire l'ensemble de l'interface utilisateur et de faire le lien avec le smart contract en appelant les différentes fonctions permettant le fonctionnement de l'application : 
 Connexion à l'application en appelant Metamask : 
 ![image](https://github.com/SalonTom/public-d-app/assets/119957865/13c840c4-8cec-4f26-9524-31af86458059)
+
 Page de vérification d'identité :
+
+![Access request](image-3.png)
+
+Page listant tous les projets disponibles :
+
+![Feed page](image.png)
 
 Page de création de projet : 
 
+![Project Creation](image-1.png)
+
 Investissement sur un projet : 
 
+![Investment](image-2.png)
 
 
 ### Smart Contract

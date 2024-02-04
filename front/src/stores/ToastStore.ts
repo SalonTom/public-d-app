@@ -17,15 +17,12 @@ export const useToastStore = defineStore('toastStore', {
     }),
     actions : {
         addToast(message : string, color : color) {
-            console.log("before", this.toasts);
             this.toasts.push({
                 id : this.toastId,
                 message,
                 color,
                 timer : 3000
             });
-
-            console.log("before", this.toasts);
 
             this.toastId = this.toastId + 1;
         },

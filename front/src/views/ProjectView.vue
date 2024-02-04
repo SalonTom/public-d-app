@@ -9,8 +9,8 @@
     </div>
 
     <Transition>
-
         <div v-if="initialized" style="overflow-y: auto; max-height: 90%;">
+
             <!-- Consult project info -->
             <div v-if="!!projectAndToken"
                 class="appear"
@@ -217,37 +217,57 @@ export default defineComponent({
     },
     setup() {
 
+        // Address of the current project
         const projectAddress = useRoute().query['project_address'];
         
+        // Is the current route the route to access my project ?
         const myProjectRoute = useRoute().name === 'My Project';
+
+        // Is the user the owner of the projet ?
         const userOwnProject = projectAddress === useAuthStore().signer || myProjectRoute;
+        
+        // Fund raisiing completion
+        const projectCompletion = ref(0);
+
+        // Does the user have already listed a project ?
+        const userHasProject = ref(false);
+
+        // Project and token information
+        const projectAndToken = ref<ProjectAndToken>();
+
+        // Remaining tokens in the campaign.
+        const remainingTokens = ref(0);
+
+        // Is the user creating a project ?
+        const creationInProgress = ref(false);
+
+        // Errors raised on the form validation.
+        const formErrors = ref<string[]>([]);
+
+        // New project user when creating project.
+        const newProject = ref<Project>(new Project());
+
+        // Number of token a user wants to buy.
+        const nbTokenInvest = ref(0);
+
+        // Number of tokens a user own.
+        const numberOfTokenOwned = ref(BigInt(0));
+
+        // Listing of the token in the marketplace contract.
+        const mpListing = ref();
+
+        // Is the view initialized ?
+        const initialized = ref(false);
+
+        // Store to deal with the toasts.
+        const toastStore = useToastStore();
+
+        // Creation process current step (3 max).
+        const creationTransactionStep = ref(0);
 
         if (userOwnProject && !myProjectRoute) {
             router.replace({ name : 'My Project' })
         }
-        
-        const projectCompletion = ref(0);
-        const userHasProject = ref(false);
-        const projectAndToken = ref<ProjectAndToken>();
-
-        const remainingTokens = ref(0);
-
-        const creationInProgress = ref(false);
-
-        const formErrors = ref<string[]>([]);
-        const newProject = ref<Project>(new Project());
-
-        const nbTokenInvest = ref(0);
-
-        const numberOfTokenOwned = ref(BigInt(0));
-
-        const mpListing = ref();
-
-        const initialized = ref(false);
-
-        const toastStore = useToastStore();
-
-        const creationTransactionStep = ref(0);
 
         return {
             projectAddress,
@@ -270,23 +290,33 @@ export default defineComponent({
         }
     },
     async mounted() {
-        const addressFilter = this.myProjectRoute ? useAuthStore().signer : this.projectAddress;
-        const projectsAndTokens = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === addressFilter);
-        
-        if (!!projectsAndTokens.length) {
-            this.projectAndToken = projectsAndTokens[0];
 
-            this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
-            console.log(this.mpListing);
-            this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
+        try {
 
-            this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.projectAndToken.project.initialTokenNumber)) * 100);
-            this.userHasProject = true;
+            // Retrieve the current project and token infos
+            const addressFilter = this.myProjectRoute ? useAuthStore().signer : this.projectAddress;
+            const projectsAndTokens = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === addressFilter);
+            
+            // Set up the infos if there is a project.
+            if (!!projectsAndTokens.length) {
+                this.projectAndToken = projectsAndTokens[0];
+    
+                this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
 
-            this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
+                this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
+    
+                this.projectCompletion = Math.round((1 - this.remainingTokens / ConversionUtils.from(this.projectAndToken.project.initialTokenNumber)) * 100);
+                this.userHasProject = true;
+    
+                this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
+    
+            }
 
+            this.initialized = true;
+
+        } catch(error) {
+            this.toastStore.addToast('Failed to get the project data.', 'negative');
         }
-        this.initialized = true;
     },
     methods: {
         async createProjectAsync() {
@@ -301,26 +331,31 @@ export default defineComponent({
             if (!this.formErrors.length) {
 
                 try {
+
+                    // Create the project
                     this.creationTransactionStep = 1;
                     await ContractUtils.getContract().methods.createProject(this.newProject.title, this.newProject.description, this.newProject.symbol.toUpperCase(), ConversionUtils.to(Number(this.newProject.initialValuation)), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                     
+                    // User has to approve the marketplace as the handler for the tokens.
                     this.creationTransactionStep = 2;
                     const newProjectAndToken = (await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[]).filter(proj => proj.project.owner === useAuthStore().signer)[0];
                     await ContractUtils.getContractToken(newProjectAndToken.token).methods.approve(ContractUtils.getMarketContractAddress(), ConversionUtils.to(Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                     
+                    // User has to list the number of tokens it wants to sell.
                     this.creationTransactionStep = 3;
                     await ContractUtils.getContractMarket().methods.addTokens(newProjectAndToken.token, ConversionUtils.to(Number(this.newProject.initialTokenNumber)), ConversionUtils.to(Number(this.newProject.initialValuation) / Number(this.newProject.initialTokenNumber))).send({ from : useAuthStore().signer });
                     this.newProject = new Project();
                     this.projectAndToken = newProjectAndToken;
     
+                    // Update the project info
                     this.mpListing = await ContractUtils.getContractMarket().methods.listings(this.projectAndToken.token).call() as { amount : bigint, pricePerToken: bigint, seller : string};
                     this.remainingTokens = ConversionUtils.from(this.mpListing.amount);
                     this.numberOfTokenOwned = await ContractUtils.getContractToken(this.projectAndToken.token).methods.balanceOf(useAuthStore().signer).call();
     
-                    useToastStore().addToast('Project succefully listed !', 'positive');
+                    this.toastStore.addToast('Project succefully listed !', 'positive');
 
                 } catch(error) {
-                    this.creationTransactionStep = 0;
+                    this.toastStore.addToast('Error while creating the project.', 'negative');
                 } finally {
                     this.creationTransactionStep = 0;
                 }
@@ -329,15 +364,19 @@ export default defineComponent({
 
         async investInProjectAsync() {
 
-            if (this.nbTokenInvest <= 0 || this.nbTokenInvest > this.remainingTokens) {
-                this.toastStore.addToast(`Cannot buy 0 token or more than ${this.remainingTokens}`, "negative");
-            } else {
-                const nbTokenToBuy = ConversionUtils.to(this.nbTokenInvest);
-                await ContractUtils.getContractMarket().methods.purchaseTokens(this.projectAndToken!.token, nbTokenToBuy).send({ from : useAuthStore().signer, value: `${ConversionUtils.from(BigInt(this.mpListing.pricePerToken)*nbTokenToBuy)}` });
-                window.location.reload();
-                this.toastStore.addToast(`You successfully bought ${ConversionUtils.from(nbTokenToBuy)} ${this.projectAndToken?.project.symbol}`, "positive");
+            try {
+                if (this.nbTokenInvest <= 0 || this.nbTokenInvest > this.remainingTokens) {
+                    this.toastStore.addToast(`Cannot buy 0 token or more than ${this.remainingTokens}`, "negative");
+                } else {
+                    const nbTokenToBuy = ConversionUtils.to(this.nbTokenInvest);
+                    await ContractUtils.getContractMarket().methods.purchaseTokens(this.projectAndToken!.token, nbTokenToBuy).send({ from : useAuthStore().signer, value: `${ConversionUtils.from(BigInt(this.mpListing.pricePerToken)*nbTokenToBuy)}` });
+                    window.location.reload();
+                    this.toastStore.addToast(`You successfully bought ${ConversionUtils.from(nbTokenToBuy)} ${this.projectAndToken?.project.symbol}`, "positive");
+                }
+            } catch(error) {
+                this.toastStore.addToast(`Investment process failed.`, 'negative');
+                this.nbTokenInvest = 0;
             }
-
 
         }
     }

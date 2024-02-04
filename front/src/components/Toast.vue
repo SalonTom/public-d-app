@@ -35,6 +35,7 @@ export default defineComponent({
         }
     },
     created() {
+        // Toast will automatically disappear after this.$props.toast.timer miliseconds
         setTimeout(() => {
             useToastStore().removeToast(this.$props.toast.id);
         }, this.$props.toast.timer);

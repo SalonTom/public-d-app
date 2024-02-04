@@ -58,6 +58,7 @@ const router = createRouter({
 router.beforeEach((to, from, next) => {
   const publicRoutes = ['Home'];
 
+  // Cannot access private routes if the user is not whitelisted.
   if (!publicRoutes.includes(to.name as string) && useAuthStore().userStatus != 2) {
 
     if ((to.name as string) !== 'Register') {

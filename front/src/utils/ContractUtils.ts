@@ -1,4 +1,3 @@
-import { useAuthStore } from "@/stores/AuthStore";
 import Web3, { Contract } from "web3";
 
 import Address from "../../../shared_contracts_info/Address.json";
@@ -6,12 +5,23 @@ import ProjectTokenFactory from "../../../shared_contracts_info/ProjectTokenFact
 import ProjetTokenMarket from "../../../shared_contracts_info/ProjectTokenMarket.json";
 import ProjectToken from "../../../shared_contracts_info/ProjectToken.json";
 
+/**
+ * Class to access the various contracts.
+ */
 export default class ContractUtils {
+
+    // Project Token Factory contract
     private static contract: Contract<any>;
+
+    // Project Token Market Place contract
     private static contractMarket: Contract<any>;
 
     private constructor() {}
 
+    /**
+     * Method to get the contract to interact with the ProjectTokenFactory Smart Contract.
+     * @returns Contract
+     */
     public static getContract() : Contract<any> {
         if (!ContractUtils.contract) {
 
@@ -26,6 +36,10 @@ export default class ContractUtils {
         return ContractUtils.contract;
     }
 
+    /**
+     * Method to get the contract to interact with the ProjectTokenMarket Smart Contract.
+     * @returns Contract
+     */
     public static getContractMarket() : Contract<any> {
         if (!ContractUtils.contractMarket) {
 
@@ -40,6 +54,11 @@ export default class ContractUtils {
         return ContractUtils.contractMarket;
     }
 
+    /**
+     * Method to get the contract to interact with the Project Token Smart Contract.
+     * @param address address of the token contract
+     * @returns Contract
+     */
     public static getContractToken(address : string) : Contract<any> {
         const _web3 = new Web3(window.ethereum);
     
@@ -50,6 +69,10 @@ export default class ContractUtils {
 
     }
 
+    /**
+     * Metyod to get the marketplace address.
+     * @returns Market place contract address.
+     */
     public static getMarketContractAddress() {
         return Address.AddressMarket;
     }

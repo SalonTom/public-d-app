@@ -37,6 +37,7 @@ import ProjectEntryList from '@/components/ProjectEntryList.vue';
 
 import type ProjectAndToken from "@/models/ProjectAndToken";
 import LazyLoading from '@/components/LazyLoading.vue';
+import { useToastStore } from '@/stores/ToastStore';
 
 export default defineComponent({
     components: {
@@ -45,8 +46,10 @@ export default defineComponent({
 },
     setup() {
 
+        // Are we loading data ?
         const loadingData = ref(false);
 
+        // Object containing the project infos and the associated token smart contract address.
         const projectsAndToken = ref<ProjectAndToken[]>([]);
 
         return {
@@ -55,12 +58,18 @@ export default defineComponent({
         }
     },
     async mounted() {
-        this.loadingData = true;
 
-        const projects = await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[];
-        this.projectsAndToken = projects;
+        try {
+            this.loadingData = true;
+    
+            const projects = await ContractUtils.getContract().methods.getProjects().call() as ProjectAndToken[];
+            this.projectsAndToken = projects;
 
-        this.loadingData = false;
+        } catch(error) {
+            useToastStore().addToast('Error while fetching the projects. Try again later...', 'negative');
+        } finally {
+            this.loadingData = false;
+        }
     }
 })
 </script>
