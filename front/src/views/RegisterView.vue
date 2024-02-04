@@ -5,7 +5,7 @@
         </div>
         <div class="shadow main-stroke" style="padding: calc(32px + var(--figma-ratio)); display: flex; flex-direction: column; gap: calc(32px + var(--figma-ratio)); max-width: 450px;">
             <div>
-                To have access to the plateform, we must make sure that you are an adult.
+                It seems like you are not registered yet. To have access to the plateform, we must make sure that you are an adult.
                 <br/>
                 <br/>
                 Upload a quality picture of your identity card. A automatic treatment will retrieve your date of birth.
@@ -21,10 +21,11 @@
 </template>
 
 <script lang="ts">
-import FileInput from '@/components/FileInput.vue';
 import { useAuthStore } from '@/stores/AuthStore';
+
 import ContractUtils from '@/utils/ContractUtils';
 
+import FileInput from '@/components/FileInput.vue';
 
 import { defineComponent } from 'vue';
 
@@ -40,5 +41,5 @@ export default defineComponent({
             authStore
         }
     }
-})
+});
 </script>

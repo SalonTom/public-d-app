@@ -19,22 +19,29 @@
     </div>
 </template>
 <script lang="ts">  
-import router from '@/router';
-import { useAuthStore } from '@/stores/AuthStore';
-import ContractUtils from '@/utils/ContractUtils';
-import { timeLog } from 'console';
 import { defineComponent } from 'vue';
-import { Contract } from 'web3';
+import router from '@/router';
+
+import { useAuthStore } from '@/stores/AuthStore';
+
+import ContractUtils from '@/utils/ContractUtils';
+import { useToastStore } from '@/stores/ToastStore';
 
 export default defineComponent({
     setup() {
         const authStore = useAuthStore();
+        const toastStore = useToastStore();
         return {
-            authStore
+            authStore,
+            toastStore
         }
     },
     methods: {
+        /**
+         * Method to upload the selected image to the python server.
+         */
         async uploadImageAsync() {
+
             const fileInput = this.$refs.fileInput as HTMLInputElement;
             const file = fileInput?.files ? fileInput.files[0] : null;
 
@@ -50,18 +57,29 @@ export default defineComponent({
 
                     this.authStore.userStatus = 1;
 
+                    // Check if the process went through and the user is whitleistedd by the server.
                     const interval = setInterval(async () => {
-                        const userIsVerified = await ContractUtils.getContract().methods.whitelist(this.authStore.signer).call();
 
-                        if (Number(userIsVerified) === 2) {
-                            this.authStore.userStatus = 2;
-                            router.push({ name : 'Feed' });
-                            clearInterval(interval);
+                        try {
+                            const userIsVerified = await ContractUtils.getContract().methods.whitelist(this.authStore.signer).call();
+                            
+                            if (Number(userIsVerified) === 2) {
+                                this.authStore.userStatus = 2;
+
+                                clearInterval(interval);
+
+                                useToastStore().addToast('Registration completed ! Welcome to the Public', 'positive');
+                                router.push({ name : 'Feed' });
+                            }
+
+                        } catch (error) {
+                            this.toastStore.addToast('Error while checking for process completion', 'negative');
                         }
+
                     }, 1000)
                 }
-            } catch(error) {
-                alert(error);
+            } catch (error) {
+                this.toastStore.addToast('Errror while processing your ID Card. Retry later...', 'negative');
             }
         }
     }

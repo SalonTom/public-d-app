@@ -33,6 +33,7 @@ import { defineComponent } from 'vue';
 
 import { MetamaskConnector } from "@/utils/MetamaskConnector";
 import { useAuthStore } from '@/stores/AuthStore';
+import { useToastStore } from '@/stores/ToastStore';
 
 export default defineComponent({
   components: {
@@ -41,13 +42,16 @@ export default defineComponent({
   methods: {
     async connectToWalletAsync() : Promise<void> {
       try {
+        // Try to connect to metamask.
         const connection = await MetamaskConnector();
 
         if (connection) {
+
+          // Initialization of the user credentials in the store.
           const authStore = useAuthStore();
           await authStore.init(connection.account);
 
-          // Check if the user is registered or not
+          // Manage the routes based on if the user is registered or not
           if (authStore.userStatus === 2) {
             router.push({ name : 'Feed' });
           } else {
@@ -56,7 +60,7 @@ export default defineComponent({
         }
 
       } catch (error) {
-        alert(error);
+        useToastStore().addToast('Error while connecting to metamask.', 'negative');
       }
     }
   }
