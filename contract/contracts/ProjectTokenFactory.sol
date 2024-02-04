@@ -62,7 +62,7 @@ contract ProjectTokenFactory {
         string memory _symbol,
         uint256 _initialValuation,
         uint256 _initialTokenNumber
-    ) public userWhitelisted(msg.sender) returns (ProjectAndToken memory p_t) {
+    ) external userWhitelisted(msg.sender) returns (ProjectAndToken memory p_t) {
         require(bytes(_title).length > 0 , "Title should not be empty");
         require(bytes(_description).length > 0 , "Description should not be empty");
         require(bytes(_symbol).length > 0 , "Symbol should not be empty");
@@ -113,7 +113,7 @@ contract ProjectTokenFactory {
     /// @param userAddress Address of the user.
     /// @param status New whitelist status.
     function whitelistUser(address userAddress, WhitelistStatus status)
-        public
+        external
         onlyAPI(msg.sender)
     {
         whitelist[userAddress] = status;

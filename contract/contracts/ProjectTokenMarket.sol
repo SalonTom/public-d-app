@@ -22,7 +22,7 @@ contract ProjectTokenMarket {
     /// @param token Address of the token to be listed for sale.
     /// @param amount The quantity of tokens to be listed.
     /// @param pricePerToken The price per token in wei.
-    function addTokens(address token, uint256 amount, uint256 pricePerToken) public payable {
+    function addTokens(address token, uint256 amount, uint256 pricePerToken) external {
         require(amount > 0, "Amount should be greater than 0");
         require(pricePerToken > 0, "Price per token should be greater than 0");
 
@@ -32,7 +32,7 @@ contract ProjectTokenMarket {
         // Ensure the sender has the required balance and allowance.
         require(_token.balanceOf(msg.sender) >= amount, "Insufficient balance to sell, you don't own that many tokens");
         require(_token.allowance(msg.sender, address(this)) >= amount, "Insufficient allowance to sell, please call approve() first");
-        
+
         // Set the listing details for the token.
         listings[_token] = Listing(msg.sender, amount, pricePerToken);
     }
@@ -40,7 +40,7 @@ contract ProjectTokenMarket {
     /// @dev Function to purchase tokens from the market.
     /// @param token Address of the token to be purchased.
     /// @param amount The quantity of tokens to be purchased.
-    function purchaseTokens(address token, uint256 amount) public payable {
+    function purchaseTokens(address token, uint256 amount) external payable {
         // Retrieve the token and check the validity of the purchase.
         ProjectToken _token = ProjectToken(token);
         require(amount > 0 && amount <= listings[_token].amount, "Cannot buy that amount of tokens");
