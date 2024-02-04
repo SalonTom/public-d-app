@@ -31,13 +31,18 @@ const router = createRouter({
       component: CommonView,
       children : [
         {
-          path: '/feed',
+          path: 'feed',
           name: 'Feed',
           component: FeedView
         },
         {
-          path: '/project',
+          path: 'project',
           name: 'My Project',
+          component: ProjectView,
+        },
+        {
+          path: 'view-project',
+          name: 'View Project',
           component: ProjectView
         }
       ],
@@ -51,12 +56,15 @@ const router = createRouter({
 });
 
 router.beforeEach((to, from, next) => {
-  const publicRoutes = ['Home', 'Register'];
+  const publicRoutes = ['Home'];
 
-  if (!publicRoutes.includes(to.name as string) && !useAuthStore().userIsRegistered) {
-    router.replace({ name : 'Home' });
-    next();
-    return false;
+  if (!publicRoutes.includes(to.name as string) && useAuthStore().userStatus != 2) {
+
+    if ((to.name as string) !== 'Register') {
+      router.replace({ name : 'Home' });
+      next();
+      return false;
+    }
   }
 
   next();

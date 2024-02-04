@@ -11,7 +11,7 @@
                 Upload a quality picture of your identity card. A automatic treatment will retrieve your date of birth.
             </div>
 
-            <FileInput ref="fileInput" :userHasRequested="authStore.userHasRequestedAccess"></FileInput>
+            <FileInput ref="fileInput" :userStatus="authStore.userStatus"></FileInput>
 
             <div class="short">
                 Note that the picture will be instantly deleted from our servers once the process is finished.
@@ -23,6 +23,7 @@
 <script lang="ts">
 import FileInput from '@/components/FileInput.vue';
 import { useAuthStore } from '@/stores/AuthStore';
+import ContractUtils from '@/utils/ContractUtils';
 
 
 import { defineComponent } from 'vue';
@@ -33,28 +34,10 @@ export default defineComponent({
     },
     setup() {
         const authStore = useAuthStore();
-    
+        ContractUtils.getContract().methods.isWhitelisted(authStore.signer).call();
+
         return {
             authStore
-        }
-    },
-    methods: {
-        uploadFile() {
-            const fileInput = (this.$refs.fileInput as HTMLInputElement);
-            const file = !!fileInput.files ? fileInput.files[0] : null;
-
-            if (file) {
-                const formData = new FormData();
-                formData.append('image', file);
-                console.log(file)
-
-                fetch('http://127.0.0.1:5000/verify_age', {
-                    method: 'POST',
-                    body: formData
-                }).then(response => {
-                    console.log(response);
-                });
-            }
         }
     }
 })

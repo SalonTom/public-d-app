@@ -4,7 +4,7 @@
             <NavBar></NavBar>
         </div>
         <div style="padding: 20px 32px 32px 32px; width: 100%;">
-            <RouterView></RouterView>
+            <RouterView :key="$route.fullPath"></RouterView>
         </div>
     </div>
 </template>

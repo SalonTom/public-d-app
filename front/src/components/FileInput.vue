@@ -1,5 +1,5 @@
 <template>
-    <div v-if="userHasRequested" style="display: flex; gap: 16px; align-items: center; justify-content: space-evenly;">
+    <div v-if="authStore.userStatus === 1" style="display: flex; gap: 16px; align-items: center; justify-content: space-evenly;">
         <div style="
             border-radius: 100%;
             background-color: #1D1C20;
@@ -21,13 +21,16 @@
 <script lang="ts">  
 import router from '@/router';
 import { useAuthStore } from '@/stores/AuthStore';
-import { defineComponent, ref } from 'vue';
+import ContractUtils from '@/utils/ContractUtils';
+import { timeLog } from 'console';
+import { defineComponent } from 'vue';
+import { Contract } from 'web3';
 
 export default defineComponent({
-    props: {
-        userHasRequested : {
-            type: Boolean,
-            required : true
+    setup() {
+        const authStore = useAuthStore();
+        return {
+            authStore
         }
     },
     methods: {
@@ -40,16 +43,22 @@ export default defineComponent({
                     const formData = new FormData();
                     formData.append('image', file);
 
-                    console.log("call to quentin api");
-                    const authStore = useAuthStore();
-                    console.log('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address)
-
-                    await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + authStore.signer?.address, {
+                    await fetch('http://127.0.0.1:5000/verify_age?eth_address=' + this.authStore.signer, {
                         method: 'POST',
                         body: formData
                     });
 
-                    useAuthStore().userHasRequestedAccess = true;
+                    this.authStore.userStatus = 1;
+
+                    const interval = setInterval(async () => {
+                        const userIsVerified = await ContractUtils.getContract().methods.whitelist(this.authStore.signer).call();
+
+                        if (Number(userIsVerified) === 2) {
+                            this.authStore.userStatus = 2;
+                            router.push({ name : 'Feed' });
+                            clearInterval(interval);
+                        }
+                    }, 1000)
                 }
             } catch(error) {
                 alert(error);
