@@ -16,7 +16,7 @@ Nous avons réparti le travail en agissant chacun sur une des briques principale
 
 ### Front
 Tom s'est occupé de la partie frontend en designant l'ensemble des maquettes au préalable. 
-Il s'est ensuite occupé de construire l'ensemble de l'interface utilisateur et de faire le lien avec le smart contract en appelant les différentes fonctions permettant le fonctionnement de l'application : 
+Il s'est ensuite occupé de construire l'ensemble de l'interface utilisateur et de faire le lien avec le smart contract en appelant les différentes fonctions permettant le fonctionnement de l'application :  
 Connexion à l'application en appelant Metamask : 
 ![image](https://github.com/SalonTom/public-d-app/assets/119957865/13c840c4-8cec-4f26-9524-31af86458059)
 
