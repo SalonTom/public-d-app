@@ -1,4 +1,6 @@
-# Public - A web3 secure investment platform
+# [SCHOOL PROJECT]
+
+# Public - A web3 secure investment platform - {ReactJs, Solidity, Flask}
 Groupe : SALON Tom, FOURNIEZ Théo, GILLOT Quentin
 
 ## Lien vers les différentes ressources
